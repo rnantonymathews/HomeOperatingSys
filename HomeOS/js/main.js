@@ -176,6 +176,48 @@ class HomeOSLauncher {
       });
     }
 
+    // Wallpaper status button clicked opens wallpaper modal
+    const wallpaperPill = document.getElementById('wallpaper-status-pill');
+    const wallpaperModal = document.getElementById('wallpaper-modal');
+    const closeWallpaperBtn = document.getElementById('btn-close-wallpaper');
+
+    if (wallpaperPill && wallpaperModal) {
+      wallpaperPill.addEventListener('click', () => {
+        sounds.playSelect();
+        wallpaperModal.classList.remove('hidden');
+        this.nav.openScope('modal', wallpaperModal);
+      });
+    }
+
+    if (closeWallpaperBtn && wallpaperModal) {
+      closeWallpaperBtn.addEventListener('click', () => {
+        sounds.playBack();
+        wallpaperModal.classList.add('hidden');
+        this.nav.closeScope();
+      });
+    }
+
+    // Wallpaper Season / Time Pill buttons
+    document.querySelectorAll('.settings-pill[data-season]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sounds.playSelect();
+        document.querySelectorAll('.settings-pill[data-season]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const season = btn.getAttribute('data-season');
+        this.wallpaper.setSeason(season);
+      });
+    });
+
+    document.querySelectorAll('.settings-pill[data-time]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sounds.playSelect();
+        document.querySelectorAll('.settings-pill[data-time]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const time = btn.getAttribute('data-time');
+        this.wallpaper.setTimeOfDay(time);
+      });
+    });
+
     // Wallpaper change event listener
     window.addEventListener('wallpaperchange', (e) => {
       if (e.detail?.title) {
@@ -252,8 +294,12 @@ class HomeOSLauncher {
 
   handleBack() {
     sounds.playBack();
+    const wallpaperModal = document.getElementById('wallpaper-modal');
     if (this.activeApp) {
       this.closeAppModal();
+    } else if (wallpaperModal && !wallpaperModal.classList.contains('hidden')) {
+      wallpaperModal.classList.add('hidden');
+      this.nav.closeScope();
     } else if (this.controlCenter.pairingModal && !this.controlCenter.pairingModal.classList.contains('hidden')) {
       this.controlCenter.hidePairingModal();
     } else {
@@ -263,8 +309,13 @@ class HomeOSLauncher {
 
   handleHome() {
     sounds.playBack();
+    const wallpaperModal = document.getElementById('wallpaper-modal');
     if (this.activeApp) {
       this.closeAppModal();
+    }
+    if (wallpaperModal && !wallpaperModal.classList.contains('hidden')) {
+      wallpaperModal.classList.add('hidden');
+      this.nav.closeScope();
     }
     if (this.controlCenter.pairingModal) {
       this.controlCenter.hidePairingModal();

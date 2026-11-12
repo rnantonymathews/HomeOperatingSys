@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>HomeMote - tvOS Remote</title>
 
   <!-- PWA Meta Tags -->
@@ -17,11 +19,12 @@
   <link rel="stylesheet" href="css/mote-core.css">
   <link rel="stylesheet" href="css/remote.css">
 </head>
+
 <body>
 
   <!-- Remote Chassis Body -->
   <div class="remote-wrapper">
-    
+
     <!-- Top Header & Status -->
     <header class="remote-header">
       <div class="header-left">
@@ -50,7 +53,7 @@
         <div class="clickpad-direction dir-down" data-direction="DOWN">▼</div>
         <div class="clickpad-direction dir-left" data-direction="LEFT">◀</div>
         <div class="clickpad-direction dir-right" data-direction="RIGHT">▶</div>
-        
+
         <button class="clickpad-center" title="Select">
           CLICK
         </button>
@@ -59,19 +62,29 @@
 
     <!-- Buttons Array -->
     <section class="button-grid">
-      
+
       <!-- Middle Row: Back, TV/Home, Play/Pause -->
       <div class="button-row">
         <button id="btn-back" class="remote-btn btn-large" title="Back / Menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </button>
 
         <button id="btn-home" class="remote-btn btn-large" title="TV / Home">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M17 2l-5 5-5-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <rect x="2" y="7" width="20" height="13" rx="2" />
+            <path d="M17 2l-5 5-5-5" />
+          </svg>
         </button>
 
         <button id="btn-play-pause" class="remote-btn btn-large" title="Play / Pause">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/><rect x="18" y="5" width="3" height="14" rx="1"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+            <rect x="18" y="5" width="3" height="14" rx="1" />
+          </svg>
         </button>
       </div>
 
@@ -83,7 +96,13 @@
 
         <!-- Siri Voice Dictation -->
         <button id="btn-siri" class="remote-btn btn-large btn-siri" title="Press to speak with Siri">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
         </button>
 
         <button id="btn-keyboard-toggle" class="remote-btn btn-medium" title="Open Mobile Keyboard">
@@ -107,7 +126,8 @@
         <button id="btn-keyboard-done" class="btn-sheet">Done</button>
       </div>
       <div class="keyboard-input-wrap">
-        <input type="text" id="remote-keyboard-input" class="keyboard-input" placeholder="Search movies, apps..." autocomplete="off">
+        <input type="text" id="remote-keyboard-input" class="keyboard-input" placeholder="Search movies, apps..."
+          autocomplete="off">
         <button id="btn-keyboard-clear" class="btn-sheet">Clear</button>
       </div>
     </div>
@@ -120,5 +140,5 @@
   <!-- Main Remote Script -->
   <script type="module" src="js/main.js"></script>
 </body>
-</html>
 
+</html>

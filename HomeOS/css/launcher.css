@@ -454,6 +454,47 @@
   }
 }
 
+/* Wallpaper Settings Modal */
+.wallpaper-settings-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.settings-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--tv-accent-cyan);
+}
+
+.settings-pill-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.settings-pill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--tv-surface-border);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-pill.active {
+  background: var(--tv-accent-blue);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.5);
+  font-weight: 600;
+}
+
 .hidden {
   display: none !important;
 }

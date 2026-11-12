@@ -162,3 +162,4 @@ export class WallpaperEngine {
     return filter.trim();
   }
 }
+

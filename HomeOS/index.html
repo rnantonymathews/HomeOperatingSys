@@ -33,6 +33,9 @@
         <button id="pwa-install-btn" class="status-pill tv-focusable hidden">
           <span>⬇ Install App</span>
         </button>
+        <button id="wallpaper-status-pill" class="status-pill tv-focusable" title="Change Scenery Wallpaper">
+          <span>🖼 Wallpaper</span>
+        </button>
         <button id="remote-status-pill" class="status-pill tv-focusable" title="Click to pair HomeMote">
           <span class="status-dot red"></span>
           <span class="status-text">Pair Remote</span>
@@ -68,6 +71,38 @@
       <span class="volume-icon">🔊</span>
       <div class="volume-bar-track">
         <div id="volume-level-bar" style="height: 65%;"></div>
+      </div>
+    </div>
+
+    <!-- Wallpaper Selector Modal -->
+    <div id="wallpaper-modal" class="tv-modal-overlay hidden">
+      <div class="tv-modal-card" style="max-width: 720px;">
+        <div class="modal-header">
+          <h2>Scenery Wallpaper Studio</h2>
+          <p>Choose Season and Time of Day</p>
+        </div>
+        
+        <div class="wallpaper-settings-group">
+          <div class="settings-label">SEASON</div>
+          <div class="settings-pill-row">
+            <button class="settings-pill tv-focusable active" data-season="summer">☀️ Summer</button>
+            <button class="settings-pill tv-focusable" data-season="winter">❄️ Winter</button>
+            <button class="settings-pill tv-focusable" data-season="rainy">☁️ Rainy (Cloudy)</button>
+            <button class="settings-pill tv-focusable" data-season="cherry_blossom">🌸 Cherry Blossom</button>
+          </div>
+        </div>
+
+        <div class="wallpaper-settings-group">
+          <div class="settings-label">TIME OF DAY</div>
+          <div class="settings-pill-row">
+            <button class="settings-pill tv-focusable" data-time="03am">🌙 3:00 AM</button>
+            <button class="settings-pill tv-focusable" data-time="09am">🌅 9:00 AM</button>
+            <button class="settings-pill tv-focusable active" data-time="03pm">☀️ 3:00 PM</button>
+            <button class="settings-pill tv-focusable" data-time="09pm">🌌 9:00 PM</button>
+          </div>
+        </div>
+
+        <button id="btn-close-wallpaper" class="tv-btn tv-focusable" tabindex="0">Done</button>
       </div>
     </div>
 
