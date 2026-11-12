@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>HomeOS - tvOS Launcher</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#06080d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HomeOS">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="css/tvos-core.css">
+  <link rel="stylesheet" href="css/launcher.css">
+</head>
+<body>
+  <div class="tv-viewport">
+    
+    <!-- Status Bar -->
+    <header class="tv-status-bar">
+      <div class="tv-brand">
+        <div class="tv-logo-symbol"></div>
+        <div class="tv-brand-title">HomeOS</div>
+      </div>
+
+      <div class="tv-status-actions">
+        <button id="pwa-install-btn" class="status-pill tv-focusable hidden">
+          <span>⬇ Install App</span>
+        </button>
+        <button id="remote-status-pill" class="status-pill tv-focusable" title="Click to pair HomeMote">
+          <span class="status-dot red"></span>
+          <span class="status-text">Pair Remote</span>
+        </button>
+        <div id="tv-clock" class="tv-clock">12:00 PM</div>
+      </div>
+    </header>
+
+    <!-- Top Shelf Showcase (Apple TV 4K Style) -->
+    <section id="top-shelf-banner" class="tv-top-shelf">
+      <div class="top-shelf-content">
+        <span id="top-shelf-badge" class="top-shelf-badge">ENTERTAINMENT</span>
+        <h1 id="top-shelf-headline" class="top-shelf-headline">The Morning Show</h1>
+        <p id="top-shelf-tagline" class="top-shelf-tagline">Chaos is the new normal. Stream the new season exclusively.</p>
+        <div id="top-shelf-actions" class="top-shelf-actions">
+          <button class="top-shelf-btn tv-focusable" tabindex="0">Play S3:E1</button>
+          <button class="top-shelf-btn tv-focusable" tabindex="0">View Details</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Grid Section -->
+    <main class="tv-app-shelf-container">
+      <div class="tv-shelf-title">Apps</div>
+      <div id="tv-app-grid" class="tv-app-grid">
+        <!-- Dynamically rendered by apps.js -->
+      </div>
+    </main>
+
+    <!-- Volume HUD Indicator -->
+    <div id="volume-hud" class="hidden">
+      <span class="volume-icon">🔊</span>
+      <div class="volume-bar-track">
+        <div id="volume-level-bar" style="height: 65%;"></div>
+      </div>
+    </div>
+
+    <!-- Pairing Modal Overlay -->
+    <div id="pairing-modal" class="tv-modal-overlay hidden">
+      <div class="tv-modal-card">
+        <div class="modal-header">
+          <h2>Pair HomeMote</h2>
+          <p>Scan with your phone camera or open the link to control HomeOS</p>
+        </div>
+        <div id="pairing-qr-container" class="qr-box">
+          <!-- QR Code generated dynamically -->
+        </div>
+        <div id="pairing-url-text" class="pairing-url-box">
+          http://...
+        </div>
+        <button id="btn-close-pairing" class="tv-btn tv-focusable" tabindex="0">Done</button>
+      </div>
+    </div>
+
+    <!-- App Viewer Modal -->
+    <div id="app-viewer-modal" class="tv-modal-overlay hidden">
+      <div class="tv-modal-card">
+        <div id="app-viewer-icon" class="tv-app-icon-svg" style="width: 100px; height: 100px; margin: 0 auto;"></div>
+        <div class="modal-header">
+          <h2 id="app-viewer-title">App Title</h2>
+          <p id="app-viewer-desc">App Description</p>
+        </div>
+        <button id="btn-close-app" class="tv-btn tv-focusable" tabindex="0">Exit App (Back)</button>
+      </div>
+    </div>
+
+    <!-- Screensaver Ambient Overlay -->
+    <div id="screensaver-overlay" class="hidden">
+      <div class="screensaver-clock" id="screensaver-time">12:00</div>
+      <div class="screensaver-hint">Press any button on HomeMote to wake</div>
+    </div>
+
+  </div>
+
+  <!-- Entry Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "home-operating-sys",
+  "version": "1.0.0",
+  "description": "tvOS Launcher (HomeOS) and Apple TV Remote (HomeMote) built with Vanilla JS & PWA",
+  "type": "module",
+  "scripts": {
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js"
+  },
+  "keywords": [
+    "tvos",
+    "launcher",
+    "remote",
+    "pwa",
+    "vanilla-js",
+    "webrtc",
+    "websocket"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.22.2"
+  }
+}

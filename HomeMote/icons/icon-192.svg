@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="moteBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c3038" />
+      <stop offset="100%" stop-color="#14161a" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="48" fill="#0f1115" />
+  <rect x="58" y="20" width="76" height="152" rx="16" fill="url(#moteBg)" stroke="rgba(255,255,255,0.18)" stroke-width="3" />
+  <circle cx="96" cy="68" r="24" fill="#0c0e12" stroke="rgba(255,255,255,0.12)" stroke-width="2" />
+  <circle cx="96" cy="68" r="10" fill="#1e2229" />
+  <circle cx="78" cy="110" r="8" fill="#252a33" />
+  <circle cx="114" cy="110" r="8" fill="#252a33" />
+</svg>

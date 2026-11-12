@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="moteBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c3038" />
+      <stop offset="100%" stop-color="#14161a" />
+    </linearGradient>
+    <linearGradient id="siriGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff2d55" />
+      <stop offset="50%" stop-color="#4facfe" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#0f1115" />
+  <!-- Apple TV Siri Remote Silhouette -->
+  <rect x="156" y="56" width="200" height="400" rx="40" fill="url(#moteBg)" stroke="rgba(255,255,255,0.18)" stroke-width="6" />
+  <!-- Clickpad -->
+  <circle cx="256" cy="180" r="64" fill="#0c0e12" stroke="rgba(255,255,255,0.12)" stroke-width="4" />
+  <circle cx="256" cy="180" r="28" fill="#1e2229" />
+  <!-- Buttons -->
+  <circle cx="206" cy="290" r="20" fill="#252a33" />
+  <circle cx="306" cy="290" r="20" fill="#252a33" />
+  <circle cx="206" cy="350" r="20" fill="#252a33" />
+  <!-- Siri Accent -->
+  <circle cx="306" cy="350" r="20" fill="url(#siriGlow)" />
+</svg>
