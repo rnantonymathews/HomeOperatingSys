@@ -262,3 +262,4 @@ class HomeMoteController {
 window.addEventListener('DOMContentLoaded', () => {
   window.homeMote = new HomeMoteController();
 });
+

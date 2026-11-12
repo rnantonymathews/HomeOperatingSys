@@ -19,12 +19,12 @@ export class SpatialNavigation {
 
   // Update focusable elements registry
   refreshFocusables() {
-    const selector = this.focusScope === 'launcher' 
+    const selector = this.focusScope === 'launcher'
       ? '.tv-focusable:not([disabled]):not(.hidden)'
       : `#${this.modalElement?.id || 'modal'} .tv-focusable:not([disabled])`;
-    
+
     this.registeredItems = Array.from(document.querySelectorAll(selector));
-    
+
     // If nothing currently focused, focus first available item
     if (!this.currentFocused || !document.body.contains(this.currentFocused)) {
       if (this.registeredItems.length > 0) {

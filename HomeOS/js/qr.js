@@ -103,3 +103,4 @@ class QRCodeModel {
     return { modules };
   }
 }
+

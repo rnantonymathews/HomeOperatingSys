@@ -94,8 +94,8 @@
   border-radius: 50%;
   background: var(--remote-touchpad-surface);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8),
-              0 8px 24px rgba(0, 0, 0, 0.4),
-              0 0 0 1px rgba(255, 255, 255, 0.08);
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,10 +125,21 @@
   transform: scale(1.15);
 }
 
-.dir-up { top: 6px; }
-.dir-down { bottom: 6px; }
-.dir-left { left: 6px; }
-.dir-right { right: 6px; }
+.dir-up {
+  top: 6px;
+}
+
+.dir-down {
+  bottom: 6px;
+}
+
+.dir-left {
+  left: 6px;
+}
+
+.dir-right {
+  right: 6px;
+}
 
 .clickpad-center {
   width: 96px;
@@ -261,7 +272,9 @@
 }
 
 @keyframes siriSpin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Remote Keyboard Bottom Sheet */

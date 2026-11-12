@@ -2,6 +2,35 @@
  * HomeOS Launcher Component Styles
  */
 
+/* Dynamic Wallpaper Container */
+.tv-wallpaper-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wallpaper-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center bottom;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.8s ease-in-out, transform 8s ease-out;
+  filter: brightness(0.9);
+}
+
+.wallpaper-layer.active {
+  opacity: 0.65;
+  transform: scale(1.0);
+}
+
 /* Status Bar */
 .tv-status-bar {
   display: flex;
@@ -414,8 +443,15 @@
 }
 
 @keyframes pulseHint {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.9; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
 }
 
 .hidden {

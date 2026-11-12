@@ -149,3 +149,4 @@ export function launchApp(app) {
   const launchEvent = new CustomEvent('tvapplaunch', { detail: { app } });
   window.dispatchEvent(launchEvent);
 }
+

@@ -9,9 +9,9 @@ import { haptics } from './haptics.js';
 export class TouchpadController {
   constructor(element, options = {}) {
     this.el = element;
-    this.onNavigate = options.onNavigate || (() => {});
-    this.onSelect = options.onSelect || (() => {});
-    
+    this.onNavigate = options.onNavigate || (() => { });
+    this.onSelect = options.onSelect || (() => { });
+
     this.startX = 0;
     this.startY = 0;
     this.currentX = 0;

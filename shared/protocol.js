@@ -13,7 +13,7 @@ export const MESSAGE_TYPES = {
   VOLUME: 'VOLUME',             // { action: 'UP' | 'DOWN' | 'MUTE' }
   POWER: 'POWER',               // {}
   TOUCH_GESTURE: 'TOUCH_GESTURE', // { type: 'SWIPE' | 'PAN', dx, dy, direction }
-  
+
   // Voice & Text Input (Remote -> TV)
   VOICE_SEARCH: 'VOICE_SEARCH',   // { query: string }
   KEYBOARD_INPUT: 'KEYBOARD_INPUT', // { text: string, action: 'TYPE' | 'ENTER' | 'BACKSPACE' | 'CLEAR' }

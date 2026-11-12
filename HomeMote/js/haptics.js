@@ -13,7 +13,7 @@ class HapticsManager {
     if (!this.enabled) return;
     try {
       navigator.vibrate(12);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Medium snap (Select, Button Press)
@@ -21,7 +21,7 @@ class HapticsManager {
     if (!this.enabled) return;
     try {
       navigator.vibrate(24);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Distinct double pulse (Back / Home)
@@ -29,7 +29,7 @@ class HapticsManager {
     if (!this.enabled) return;
     try {
       navigator.vibrate([15, 40, 20]);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Long confirmation (Connection established, Voice complete)
@@ -37,7 +37,7 @@ class HapticsManager {
     if (!this.enabled) return;
     try {
       navigator.vibrate([20, 50, 35]);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Error buzz
@@ -45,7 +45,7 @@ class HapticsManager {
     if (!this.enabled) return;
     try {
       navigator.vibrate([50, 30, 50]);
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 

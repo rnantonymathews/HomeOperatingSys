@@ -9,11 +9,12 @@ import { SpatialNavigation } from './navigation.js';
 import { sounds } from './sound.js';
 import { renderAppGrid, APPS, launchApp } from './apps.js';
 import { ControlCenter } from './controlcenter.js';
+import { WallpaperEngine, SEASONS, TIMES_OF_DAY } from './wallpaper.js';
 
 class HomeOSLauncher {
   constructor() {
     this.nav = new SpatialNavigation();
-    
+
     // Read room from URL query or default
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room') || 'homeos_default';
@@ -38,6 +39,9 @@ class HomeOSLauncher {
     if (appGridContainer) {
       renderAppGrid(appGridContainer);
     }
+
+    // Initialize Dynamic Wallpaper Engine
+    this.wallpaper = new WallpaperEngine();
 
     // Refresh navigation focusables
     this.nav.refreshFocusables();
@@ -171,6 +175,13 @@ class HomeOSLauncher {
         this.closeAppModal();
       });
     }
+
+    // Wallpaper change event listener
+    window.addEventListener('wallpaperchange', (e) => {
+      if (e.detail?.title) {
+        this.showToast(`Wallpaper: ${e.detail.title}`);
+      }
+    });
   }
 
   updateTopShelf(app) {

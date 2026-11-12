@@ -130,3 +130,4 @@ Open `http://localhost:3000/` in your desktop browser. Both HomeOS and HomeMote 
     │   └── keyboard.js     # Slide-up mobile keyboard
     └── icons/              # PWA icons
 ```
+

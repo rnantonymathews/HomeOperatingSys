@@ -15,7 +15,7 @@ export class HomeLink {
     this.listeners = new Map();
     this.statusListeners = new Set();
     this.status = 'disconnected'; // 'connected' | 'connecting' | 'disconnected'
-    
+
     this.broadcastChannel = null;
     this.ws = null;
     this.seenMessageIds = new Set();
