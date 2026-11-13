@@ -21,28 +21,28 @@ export const TIMES_OF_DAY = {
 
 export const WALLPAPER_CATALOG = [
   // Summer
-  { id: 'summer_03am', season: 'summer', time: '03am', title: 'Summer Midnight (3 AM)', file: 'summer_03am.png' },
-  { id: 'summer_09am', season: 'summer', time: '09am', title: 'Summer Morning (9 AM)', file: 'summer_09am.png' },
-  { id: 'summer_03pm', season: 'summer', time: '03pm', title: 'Summer Afternoon (3 PM)', file: 'summer_03pm.png' },
-  { id: 'summer_09pm', season: 'summer', time: '09pm', title: 'Summer Twilight (9 PM)', file: 'summer_09pm.png' },
+  { id: 'summer_03am', season: 'summer', time: '03am', title: 'Summer Midnight (3 AM)', file: 'summer_03am.jpg' },
+  { id: 'summer_09am', season: 'summer', time: '09am', title: 'Summer Morning (9 AM)', file: 'summer_09am.jpg' },
+  { id: 'summer_03pm', season: 'summer', time: '03pm', title: 'Summer Afternoon (3 PM)', file: 'summer_03pm.jpg' },
+  { id: 'summer_09pm', season: 'summer', time: '09pm', title: 'Summer Twilight (9 PM)', file: 'summer_09pm.jpg' },
 
   // Winter
-  { id: 'winter_03am', season: 'winter', time: '03am', title: 'Winter Midnight (3 AM)', file: 'winter_03am.png' },
-  { id: 'winter_09am', season: 'winter', time: '09am', title: 'Winter Morning (9 AM)', file: 'winter_09am.png' },
-  { id: 'winter_03pm', season: 'winter', time: '03pm', title: 'Winter Afternoon (3 PM)', file: 'winter_03pm.png' },
-  { id: 'winter_09pm', season: 'winter', time: '09pm', title: 'Winter Twilight (9 PM)', file: 'winter_09pm.png' },
+  { id: 'winter_03am', season: 'winter', time: '03am', title: 'Winter Midnight (3 AM)', file: 'winter_03am.jpg' },
+  { id: 'winter_09am', season: 'winter', time: '09am', title: 'Winter Morning (9 AM)', file: 'winter_09am.jpg' },
+  { id: 'winter_03pm', season: 'winter', time: '03pm', title: 'Winter Afternoon (3 PM)', file: 'winter_03pm.jpg' },
+  { id: 'winter_09pm', season: 'winter', time: '09pm', title: 'Winter Twilight (9 PM)', file: 'winter_09pm.jpg' },
 
   // Rainy (Cloudy only)
-  { id: 'rainy_cloudy_03am', season: 'rainy', time: '03am', title: 'Overcast Night (3 AM)', file: 'rainy_cloudy_03am.png' },
-  { id: 'rainy_cloudy_09am', season: 'rainy', time: '09am', title: 'Overcast Morning (9 AM)', file: 'rainy_cloudy_09am.png' },
-  { id: 'rainy_cloudy_03pm', season: 'rainy', time: '03pm', title: 'Overcast Afternoon (3 PM)', file: 'rainy_cloudy_03pm.png' },
-  { id: 'rainy_cloudy_09pm', season: 'rainy', time: '09pm', title: 'Overcast Dusk (9 PM)', file: 'rainy_cloudy_09pm.png' },
+  { id: 'rainy_cloudy_03am', season: 'rainy', time: '03am', title: 'Overcast Night (3 AM)', file: 'rainy_cloudy_03am.jpg' },
+  { id: 'rainy_cloudy_09am', season: 'rainy', time: '09am', title: 'Overcast Morning (9 AM)', file: 'rainy_cloudy_09am.jpg' },
+  { id: 'rainy_cloudy_03pm', season: 'rainy', time: '03pm', title: 'Overcast Afternoon (3 PM)', file: 'rainy_cloudy_03pm.jpg' },
+  { id: 'rainy_cloudy_09pm', season: 'rainy', time: '09pm', title: 'Overcast Dusk (9 PM)', file: 'rainy_cloudy_09pm.jpg' },
 
   // Cherry Blossom
-  { id: 'cherry_blossom_03am', season: 'cherry_blossom', time: '03am', title: 'Cherry Blossom Night (3 AM)', file: 'cherry_blossom_03am.png' },
-  { id: 'cherry_blossom_09am', season: 'cherry_blossom', time: '09am', title: 'Cherry Blossom Morning (9 AM)', file: 'cherry_blossom_09am.png' },
-  { id: 'cherry_blossom_03pm', season: 'cherry_blossom', time: '03pm', title: 'Cherry Blossom Afternoon (3 PM)', file: 'cherry_blossom_03pm.png' },
-  { id: 'cherry_blossom_09pm', season: 'cherry_blossom', time: '09pm', title: 'Cherry Blossom Dusk (9 PM)', file: 'cherry_blossom_09pm.png' },
+  { id: 'cherry_blossom_03am', season: 'cherry_blossom', time: '03am', title: 'Cherry Blossom Night (3 AM)', file: 'cherry_blossom_03am.jpg' },
+  { id: 'cherry_blossom_09am', season: 'cherry_blossom', time: '09am', title: 'Cherry Blossom Morning (9 AM)', file: 'cherry_blossom_09am.jpg' },
+  { id: 'cherry_blossom_03pm', season: 'cherry_blossom', time: '03pm', title: 'Cherry Blossom Afternoon (3 PM)', file: 'cherry_blossom_03pm.jpg' },
+  { id: 'cherry_blossom_09pm', season: 'cherry_blossom', time: '09pm', title: 'Cherry Blossom Dusk (9 PM)', file: 'cherry_blossom_09pm.jpg' },
 ];
 
 export class WallpaperEngine {
