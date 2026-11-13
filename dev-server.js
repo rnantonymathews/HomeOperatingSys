@@ -151,8 +151,44 @@ wss.on('connection', (ws, req) => {
   ws.on('message', (message) => {
     try {
       const parsed = JSON.parse(message);
+
+      // Support dynamic room switching (e.g. entering 6-digit PIN)
+      if (parsed.type === 'SWITCH_ROOM' && parsed.room) {
+        const oldRoom = ws.roomId;
+        if (rooms.has(oldRoom)) {
+          rooms.get(oldRoom).delete(ws);
+          if (rooms.get(oldRoom).size === 0) rooms.delete(oldRoom);
+        }
+
+        ws.roomId = String(parsed.room).trim();
+        if (!rooms.has(ws.roomId)) {
+          rooms.set(ws.roomId, new Set());
+        }
+        rooms.get(ws.roomId).add(ws);
+        console.log(`[WS] Client switched to room "${ws.roomId}" as "${ws.role}"`);
+
+        ws.send(JSON.stringify({
+          type: 'ROOM_SWITCHED',
+          room: ws.roomId,
+          peerCount: rooms.get(ws.roomId).size
+        }));
+
+        // Notify other peers in the new room
+        for (const client of rooms.get(ws.roomId)) {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'PEER_JOINED',
+              role: ws.role,
+              peerCount: rooms.get(ws.roomId).size
+            }));
+          }
+        }
+        return;
+      }
+
       // Forward message to all peers in the room
-      const roomClients = rooms.get(roomId);
+      const currentRoom = ws.roomId;
+      const roomClients = rooms.get(currentRoom);
       if (roomClients) {
         for (const client of roomClients) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {

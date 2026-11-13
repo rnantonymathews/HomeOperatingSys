@@ -1,345 +1,268 @@
 /**
- * HomeMote Remote Controls & Layout Styles
+ * HomeMote Pairing Screen, Numpad, and Trackpad Styles
  */
 
-/* Header Area */
-.remote-header {
+/* Screens */
+.remote-screen {
+  width: 100%;
+  height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding-bottom: 12px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.header-left {
+.remote-screen.hidden {
+  display: none !important;
+}
+
+/* Screen 1: Pairing Header */
+.pairing-header {
+  text-align: center;
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.status-pill {
-  display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid var(--remote-border);
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-.status-pill.connected .status-dot {
-  background: var(--status-green);
-  box-shadow: 0 0 6px var(--status-green);
-}
-
-.status-pill.connecting .status-dot {
-  background: var(--status-yellow);
-  box-shadow: 0 0 6px var(--status-yellow);
-}
-
-.status-pill.disconnected .status-dot {
-  background: var(--status-red);
-  box-shadow: 0 0 6px var(--status-red);
-}
-
-.tv-active-app {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.5);
-  padding-left: 2px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-power {
-  width: 38px;
-  height: 38px;
-  color: #ff3b30;
-  font-size: 1.1rem;
-}
-
-.room-pill {
-  font-size: 0.7rem;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 4px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Apple TV Siri Remote Circular Touchpad / Clickpad */
-.touchpad-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px 0 16px 0;
-}
-
-.clickpad-ring {
-  position: relative;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: var(--remote-touchpad-surface);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8),
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.08);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  touch-action: none;
-  cursor: grab;
-}
-
-.clickpad-ring:active {
-  cursor: grabbing;
-}
-
-.clickpad-direction {
-  position: absolute;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-  transition: color 0.1s ease, transform 0.1s ease;
-}
-
-.clickpad-direction:active {
-  color: #ffffff;
-  transform: scale(1.15);
-}
-
-.dir-up {
-  top: 6px;
-}
-
-.dir-down {
-  bottom: 6px;
-}
-
-.dir-left {
-  left: 6px;
-}
-
-.dir-right {
-  right: 6px;
-}
-
-.clickpad-center {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #242932 0%, #15181e 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.18);
-  cursor: pointer;
-  transition: transform 0.08s ease;
-  z-index: 5;
-}
-
-.clickpad-center:active {
-  transform: scale(0.92);
-  background: #111418;
-}
-
-/* Ripple effect on touch */
-.touchpad-ripple {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  transform: translate(-50%, -50%) scale(0);
-  animation: rippleAnim 0.35s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes rippleAnim {
-  to {
-    transform: translate(-50%, -50%) scale(2.8);
-    opacity: 0;
-  }
-}
-
-/* Button Rows */
-.button-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-}
-
-.button-row {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-}
-
-.btn-large {
-  width: 56px;
-  height: 56px;
-  font-size: 1.25rem;
-}
-
-.btn-medium {
-  width: 48px;
-  height: 48px;
-  font-size: 1.1rem;
-}
-
-/* Volume Vertical Rocker */
-.volume-rocker {
-  display: flex;
-  flex-direction: column;
-  background: var(--remote-button-bg);
-  border-radius: 28px;
-  border: 1px solid var(--remote-border);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-}
-
-.btn-rocker {
-  width: 48px;
-  height: 48px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.1s ease;
-}
-
-.btn-rocker:active {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.rocker-divider {
-  height: 1px;
-  background: var(--remote-border);
-  width: 60%;
-  margin: 0 auto;
-}
-
-/* Siri Button with Apple Glow Ring */
-.btn-siri {
-  position: relative;
-  background: linear-gradient(135deg, #1f232b, #13161c);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.btn-siri::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff2d55, #ff9500, #4facfe, #00f2fe);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.btn-siri.listening::before {
-  opacity: 1;
-  animation: siriSpin 2s linear infinite;
-}
-
-@keyframes siriSpin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Remote Keyboard Bottom Sheet */
-.keyboard-sheet {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(22, 25, 32, 0.98);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-top: 1px solid var(--remote-border);
-  border-radius: 28px 28px 0 0;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
-  z-index: 200;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.keyboard-sheet.hidden {
-  transform: translateY(105%);
-}
-
-.keyboard-sheet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.keyboard-input-wrap {
-  display: flex;
   gap: 8px;
 }
 
-.keyboard-input {
-  flex: 1;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--remote-border);
+.pairing-icon {
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  padding: 10px 14px;
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
+  background: linear-gradient(135deg, #0071e3, #4facfe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.4);
+  margin-bottom: 4px;
 }
 
-.keyboard-input:focus {
+.pairing-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+}
+
+.pairing-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 260px;
+  line-height: 1.35;
+}
+
+/* 6-Box PIN Display */
+.pin-box-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 10px 0;
+}
+
+.pin-box {
+  width: 42px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  transition: all 0.18s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pin-box.active {
   border-color: #0071e3;
+  background: rgba(0, 113, 227, 0.12);
+  box-shadow: 0 0 12px rgba(0, 113, 227, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
-.btn-sheet {
+.pin-box.filled {
+  border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid var(--remote-border);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 10px;
+}
+
+.pin-spacer {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Error Shake */
+.pin-box-row.error .pin-box {
+  border-color: #ff3b30;
+  background: rgba(255, 59, 48, 0.15);
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.pairing-feedback {
+  text-align: center;
+  min-height: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #ff3b30;
+}
+
+.pairing-feedback.success {
+  color: #34c759;
+}
+
+/* Tactile Number Pad */
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 16px;
+  padding: 0 8px 10px 8px;
+}
+
+.numpad-key {
+  height: 58px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 1.45rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.numpad-key:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.numpad-key.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.numpad-key.backspace {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Screen 2: Trackpad */
+.trackpad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 4px 14px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tv-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  cursor: pointer;
+  color: #ffffff;
 }
 
-.hidden {
-  display: none !important;
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.green {
+  background: #34c759;
+  box-shadow: 0 0 8px #34c759;
+}
+
+.btn-unpair {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.65);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-unpair:active {
+  background: rgba(255, 59, 48, 0.2);
+  color: #ff3b30;
+  border-color: #ff3b30;
+}
+
+.trackpad-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.trackpad-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: radial-gradient(circle at 50% 50%, #1c2028 0%, #111419 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 32px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7),
+              0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: grab;
+  overflow: hidden;
+  user-select: none;
+}
+
+.trackpad-surface:active {
+  cursor: grabbing;
+  border-color: rgba(0, 113, 227, 0.5);
+}
+
+.trackpad-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.28);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  pointer-events: none;
+  line-height: 1.4;
+}
+
+.touch-trail {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 113, 227, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }

@@ -24,11 +24,19 @@ export const MESSAGE_TYPES = {
   DISMISS_KEYBOARD: 'DISMISS_KEYBOARD', // {}
   HAPTIC_TRIGGER: 'HAPTIC_TRIGGER', // { pattern: 'light' | 'medium' | 'heavy' | 'success' | 'selection' }
 
-  // Pairing & Connection Heartbeats
+  // Touchpad & Cursor Tracking (Remote -> TV)
+  CURSOR_MOVE: 'CURSOR_MOVE',       // { dx: number, dy: number }
+  CURSOR_CLICK: 'CURSOR_CLICK',     // { action: 'press' | 'release' }
+
+  // Pairing & Connection Handshake
   PING: 'PING',
   PONG: 'PONG',
-  PAIR_REQUEST: 'PAIR_REQUEST',
-  PAIR_ACCEPTED: 'PAIR_ACCEPTED'
+  PAIR_REQUEST: 'PAIR_REQUEST',     // { pin: string }
+  PAIR_ACCEPTED: 'PAIR_ACCEPTED',   // { tvName: string, pin: string }
+  PAIR_REJECTED: 'PAIR_REJECTED',   // { error: string }
+  UNPAIR: 'UNPAIR',                 // {}
+  SWITCH_ROOM: 'SWITCH_ROOM',       // { room: string }
+  ROOM_SWITCHED: 'ROOM_SWITCHED'    // { room: string }
 };
 
 export const DIRECTIONS = {

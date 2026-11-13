@@ -238,14 +238,21 @@ export class HomeLink {
   }
 
   setRoom(newRoomId) {
+    newRoomId = String(newRoomId).trim();
     if (this.roomId === newRoomId) return;
     this.roomId = newRoomId;
+
     if (this.broadcastChannel) {
-      this.broadcastChannel.close();
+      try {
+        this.broadcastChannel.close();
+      } catch (e) {}
     }
-    if (this.ws) {
-      this.ws.close();
+    this.initBroadcastChannel();
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ type: 'SWITCH_ROOM', room: newRoomId }));
+    } else {
+      this.initWebSocket();
     }
-    this.init();
   }
 }

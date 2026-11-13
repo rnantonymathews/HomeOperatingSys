@@ -16,7 +16,15 @@
 </head>
 <body>
   <div id="app" class="tv-viewport">
-    <!-- Clean canvas: Ready to build from scratch -->
+    <!-- Blue Circle Remote Cursor -->
+    <div id="tv-cursor"></div>
+
+    <!-- 6-Digit Code Badge at Bottom Right -->
+    <div id="tv-pairing-badge">
+      <div id="tv-pairing-dot" class="pairing-dot"></div>
+      <span class="pairing-label">Pair Remote</span>
+      <span id="tv-pairing-code" class="pairing-code">--- · ---</span>
+    </div>
   </div>
 
   <script type="module" src="js/main.js"></script>

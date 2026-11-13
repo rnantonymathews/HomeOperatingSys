@@ -16,7 +16,65 @@
 </head>
 <body>
   <div id="remote" class="remote-wrapper">
-    <!-- Clean canvas: Ready to build from scratch -->
+
+    <!-- Screen 1: Connect to your TV (6-Digit PIN Entry) -->
+    <div id="pairing-screen" class="remote-screen">
+      <div class="pairing-header">
+        <div class="pairing-icon"></div>
+        <h1 class="pairing-title">Connect to your TV</h1>
+        <p class="pairing-subtitle">Enter the 6-digit code shown on the bottom right of HomeOS</p>
+      </div>
+
+      <!-- 6-Box PIN Display -->
+      <div id="pin-display" class="pin-box-row">
+        <div class="pin-box active" data-index="0"></div>
+        <div class="pin-box" data-index="1"></div>
+        <div class="pin-box" data-index="2"></div>
+        <div class="pin-spacer">·</div>
+        <div class="pin-box" data-index="3"></div>
+        <div class="pin-box" data-index="4"></div>
+        <div class="pin-box" data-index="5"></div>
+      </div>
+
+      <div id="pairing-feedback" class="pairing-feedback"></div>
+
+      <!-- Tactile Number Pad -->
+      <div class="numpad-grid">
+        <button class="numpad-key" data-key="1">1</button>
+        <button class="numpad-key" data-key="2">2</button>
+        <button class="numpad-key" data-key="3">3</button>
+        <button class="numpad-key" data-key="4">4</button>
+        <button class="numpad-key" data-key="5">5</button>
+        <button class="numpad-key" data-key="6">6</button>
+        <button class="numpad-key" data-key="7">7</button>
+        <button class="numpad-key" data-key="8">8</button>
+        <button class="numpad-key" data-key="9">9</button>
+        <div class="numpad-key empty"></div>
+        <button class="numpad-key" data-key="0">0</button>
+        <button class="numpad-key backspace" data-key="backspace">⌫</button>
+      </div>
+    </div>
+
+    <!-- Screen 2: Trackpad Remote (Once Paired) -->
+    <div id="trackpad-screen" class="remote-screen hidden">
+      <header class="trackpad-header">
+        <div class="tv-status-badge">
+          <span class="status-dot green"></span>
+          <span id="connected-tv-name">HomeOS TV</span>
+        </div>
+        <button id="btn-unpair" class="btn-unpair" title="Disconnect / Switch TV">Disconnect</button>
+      </header>
+
+      <div class="trackpad-container">
+        <div id="mote-trackpad" class="trackpad-surface">
+          <div class="trackpad-hint">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8m-4-4h8"/></svg>
+            <span>Touch & drag to move cursor<br>Tap to click</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script type="module" src="js/main.js"></script>
