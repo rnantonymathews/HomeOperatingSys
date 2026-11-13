@@ -1,6 +1,6 @@
 /**
- * HomeMote Main Controller
- * 6-Digit PIN Pairing Screen, Real Handshake, and Live Trackpad
+ * HomeMote Controller
+ * Connect to TV Screen (PIN: 103279) -> Centered Power Button Remote Screen
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -13,12 +13,6 @@ class HomeMoteController {
     this.pairedPin = localStorage.getItem('homemote_paired_pin') || null;
     this.isPaired = false;
 
-    // Touchpad tracking variables
-    this.isTracking = false;
-    this.lastX = 0;
-    this.lastY = 0;
-    this.hasMoved = false;
-
     // Initialize HomeLink (using paired room if saved, or temporary room)
     const initialRoom = this.pairedPin ? `homeos_${this.pairedPin}` : 'homeos_pairing_lobby';
     this.link = new HomeLink({
@@ -30,31 +24,31 @@ class HomeMoteController {
   }
 
   init() {
-    console.log('[HomeMote] Initialized.');
+    console.log('[HomeMote] Initializing Remote...');
 
     this.initElements();
     this.setupKeypad();
-    this.setupTrackpad();
+    this.setupPowerButton();
     this.setupLinkEvents();
     this.registerPWA();
 
-    // If already paired in localStorage, auto-restore connection
+    // If already paired in localStorage, directly show the Power Button screen
     if (this.pairedPin && this.pairedPin.length === 6) {
-      console.log(`[HomeMote] Restoring paired connection for PIN: ${this.pairedPin}`);
-      this.showTrackpadScreen('HomeOS TV');
+      console.log(`[HomeMote] Already paired with PIN: ${this.pairedPin}`);
+      this.showPowerScreen('HomeOS TV');
       this.attemptPair(this.pairedPin, true);
     }
   }
 
   initElements() {
     this.pairingScreen = document.getElementById('pairing-screen');
-    this.trackpadScreen = document.getElementById('trackpad-screen');
+    this.powerScreen = document.getElementById('power-screen');
     this.pinBoxes = Array.from(document.querySelectorAll('.pin-box'));
     this.pinRow = document.getElementById('pin-display');
     this.feedbackEl = document.getElementById('pairing-feedback');
     this.tvNameEl = document.getElementById('connected-tv-name');
     this.unpairBtn = document.getElementById('btn-unpair');
-    this.trackpadEl = document.getElementById('mote-trackpad');
+    this.powerBtn = document.getElementById('btn-power-main');
 
     if (this.unpairBtn) {
       this.unpairBtn.addEventListener('click', () => {
@@ -66,7 +60,6 @@ class HomeMoteController {
 
   // --- Screen 1: Numpad & 6-Digit PIN Logic ---
   setupKeypad() {
-    // On-screen number pad buttons
     const keys = document.querySelectorAll('.numpad-key[data-key]');
     keys.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -129,9 +122,9 @@ class HomeMoteController {
   }
 
   attemptPair(pin, isAutoConnect = false) {
-    console.log(`[HomeMote] Attempting real pair with PIN: ${pin}`);
+    console.log(`[HomeMote] Attempting pair with PIN: ${pin}`);
     if (!isAutoConnect) {
-      this.setFeedback('Connecting to TV...', '');
+      this.setFeedback('Connecting to HomeOS TV...', '');
     }
 
     // Switch HomeLink to the TV's room
@@ -147,9 +140,9 @@ class HomeMoteController {
       clearTimeout(this.pairTimeout);
       this.pairTimeout = setTimeout(() => {
         if (!this.isPaired) {
-          this.triggerPinError('TV not found. Make sure HomeOS is running.');
+          this.triggerPinError('TV not found or incorrect code. Please check HomeOS.');
         }
-      }, 4000);
+      }, 3500);
     }
   }
 
@@ -162,7 +155,7 @@ class HomeMoteController {
         if (this.pinRow) this.pinRow.classList.remove('error');
         this.enteredPin = [];
         this.updatePinDisplay();
-      }, 600);
+      }, 550);
     }
   }
 
@@ -173,10 +166,10 @@ class HomeMoteController {
     }
   }
 
-  showTrackpadScreen(tvName) {
+  showPowerScreen(tvName) {
     this.isPaired = true;
     if (this.pairingScreen) this.pairingScreen.classList.add('hidden');
-    if (this.trackpadScreen) this.trackpadScreen.classList.remove('hidden');
+    if (this.powerScreen) this.powerScreen.classList.remove('hidden');
     if (this.tvNameEl) this.tvNameEl.textContent = tvName || 'HomeOS TV';
   }
 
@@ -190,76 +183,26 @@ class HomeMoteController {
     this.updatePinDisplay();
     this.setFeedback('', '');
 
-    if (this.trackpadScreen) this.trackpadScreen.classList.add('hidden');
+    if (this.powerScreen) this.powerScreen.classList.add('hidden');
     if (this.pairingScreen) this.pairingScreen.classList.remove('hidden');
   }
 
-  // --- Screen 2: Real-time Trackpad Controller ---
-  setupTrackpad() {
-    if (!this.trackpadEl) return;
+  // --- Screen 2: Centered Power Button ---
+  setupPowerButton() {
+    if (!this.powerBtn) return;
 
-    this.trackpadEl.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-    window.addEventListener('pointermove', (e) => this.onPointerMove(e));
-    window.addEventListener('pointerup', (e) => this.onPointerUp(e));
-    window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
-  }
-
-  onPointerDown(e) {
-    if (!this.isPaired) return;
-    this.isTracking = true;
-    this.hasMoved = false;
-    this.lastX = e.clientX;
-    this.lastY = e.clientY;
-
-    this.showTouchTrail(e.clientX, e.clientY);
-  }
-
-  onPointerMove(e) {
-    if (!this.isTracking || !this.isPaired) return;
-
-    const dx = e.clientX - this.lastX;
-    const dy = e.clientY - this.lastY;
-
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-      this.hasMoved = true;
-      this.lastX = e.clientX;
-      this.lastY = e.clientY;
-
-      // Stream cursor movement to HomeOS
-      this.link.send(MESSAGE_TYPES.CURSOR_MOVE, { dx, dy });
-    }
-  }
-
-  onPointerUp(e) {
-    if (!this.isTracking || !this.isPaired) return;
-    this.isTracking = false;
-
-    // If released without significant dragging, trigger a Click!
-    if (!this.hasMoved) {
-      haptics.click();
-      this.link.send(MESSAGE_TYPES.CURSOR_CLICK, { action: 'press' });
-      setTimeout(() => {
-        this.link.send(MESSAGE_TYPES.CURSOR_CLICK, { action: 'release' });
-      }, 100);
-    }
-  }
-
-  showTouchTrail(clientX, clientY) {
-    const rect = this.trackpadEl.getBoundingClientRect();
-    const trail = document.createElement('div');
-    trail.className = 'touch-trail';
-    trail.style.left = `${clientX - rect.left}px`;
-    trail.style.top = `${clientY - rect.top}px`;
-
-    this.trackpadEl.appendChild(trail);
-    setTimeout(() => trail.remove(), 350);
+    this.powerBtn.addEventListener('click', () => {
+      haptics.doublePulse();
+      console.log('[HomeMote] Power button pressed');
+      this.link.send(MESSAGE_TYPES.POWER);
+    });
   }
 
   // --- Communication Events ---
   setupLinkEvents() {
     // When TV accepts pair request
     this.link.on(MESSAGE_TYPES.PAIR_ACCEPTED, (payload) => {
-      console.log('[HomeMote] Pairing Accepted by TV:', payload);
+      console.log('[HomeMote] Pairing Accepted by HomeOS:', payload);
       clearTimeout(this.pairTimeout);
       haptics.success();
 
@@ -267,13 +210,13 @@ class HomeMoteController {
       this.pairedPin = pin;
       localStorage.setItem('homemote_paired_pin', pin);
 
-      this.showTrackpadScreen(payload?.tvName || 'HomeOS TV');
+      this.showPowerScreen(payload?.tvName || 'HomeOS TV');
     });
 
     // When TV rejects pair request
     this.link.on(MESSAGE_TYPES.PAIR_REJECTED, (payload) => {
       clearTimeout(this.pairTimeout);
-      this.triggerPinError(payload?.error || 'PIN rejected by TV.');
+      this.triggerPinError(payload?.error || 'Incorrect code.');
     });
   }
 

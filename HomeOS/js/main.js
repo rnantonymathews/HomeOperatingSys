@@ -1,6 +1,6 @@
 /**
  * HomeOS Main Controller
- * 6-Digit PIN Display, Real Handshake, and Live Blue Circle Cursor
+ * Embedded PIN: 103279 (Clean display, real handshake, live cursor & power toggle)
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -9,8 +9,12 @@ import { sounds } from './sound.js';
 
 class HomeOSLauncher {
   constructor() {
-    this.pinCode = this.getOrCreatePinCode();
+    // Fixed embedded code as requested
+    this.pinCode = '103279';
+    localStorage.setItem('homeos_pairing_pin', this.pinCode);
+
     this.pairedRemotes = new Set();
+    this.isSleeping = false;
     
     // Initialize HomeLink for this TV PIN room
     this.link = new HomeLink({
@@ -26,44 +30,20 @@ class HomeOSLauncher {
     this.init();
   }
 
-  getOrCreatePinCode() {
-    // Generate once and store permanently in localStorage (never shuffles)
-    let stored = localStorage.getItem('homeos_pairing_pin') || sessionStorage.getItem('homeos_pairing_pin');
-    if (!stored || stored.length !== 6 || isNaN(stored)) {
-      stored = Math.floor(100000 + Math.random() * 900000).toString();
-    }
-    localStorage.setItem('homeos_pairing_pin', stored);
-    return stored;
-  }
-
   init() {
-    console.log(`[HomeOS] Initialized with 6-Digit PIN: ${this.pinCode}`);
+    console.log(`[HomeOS] Initialized with embedded PIN: ${this.pinCode}`);
 
     this.initElements();
-    this.renderPairingCode();
     this.setupLinkEvents();
     this.registerPWA();
   }
 
   initElements() {
     this.cursorEl = document.getElementById('tv-cursor');
-    this.pairingDotEl = document.getElementById('tv-pairing-dot');
-    this.pairingCodeEl = document.getElementById('tv-pairing-code');
-
-    // Position cursor at center initially
     this.updateCursorPosition();
   }
 
-  renderPairingCode() {
-    if (this.pairingCodeEl) {
-      // Format as "123 · 456" for readability
-      const formatted = `${this.pinCode.slice(0, 3)} · ${this.pinCode.slice(3)}`;
-      this.pairingCodeEl.textContent = formatted;
-    }
-  }
-
   setupLinkEvents() {
-    // Link connection state
     this.link.onStatusChange((status) => {
       console.log(`[HomeOS Link] Status: ${status}`);
     });
@@ -71,21 +51,24 @@ class HomeOSLauncher {
     // Handle incoming Pair Request from HomeMote
     this.link.on(MESSAGE_TYPES.PAIR_REQUEST, (payload, raw) => {
       const incomingPin = String(payload?.pin || '').trim();
-      console.log(`[HomeOS] Received Pair Request with PIN: "${incomingPin}" (Expected: "${this.pinCode}")`);
+      console.log(`[HomeOS] Received Pair Request with PIN: "${incomingPin}" (Embedded: "${this.pinCode}")`);
 
       if (incomingPin === this.pinCode) {
         // Successful real pairing!
         this.pairedRemotes.add(raw.senderId);
-        this.updatePairingUI(true);
         sounds.playConnectChime();
 
         // Confirm back to remote
         this.link.send(MESSAGE_TYPES.PAIR_ACCEPTED, {
-          tvName: 'HomeOS Living Room TV',
+          tvName: 'HomeOS TV',
           pin: this.pinCode
         });
 
-        // Show cursor upon pairing
+        // Wake screen if sleeping
+        if (this.isSleeping) {
+          this.togglePower();
+        }
+
         this.showCursor();
       } else {
         // Rejected
@@ -97,6 +80,7 @@ class HomeOSLauncher {
 
     // Real-time Cursor Movement
     this.link.on(MESSAGE_TYPES.CURSOR_MOVE, (payload) => {
+      if (this.isSleeping) return;
       this.showCursor();
 
       const sensitivity = 1.6;
@@ -111,6 +95,7 @@ class HomeOSLauncher {
 
     // Cursor Click / Tap
     this.link.on(MESSAGE_TYPES.CURSOR_CLICK, (payload) => {
+      if (this.isSleeping) return;
       this.showCursor();
       if (!this.cursorEl) return;
 
@@ -122,14 +107,39 @@ class HomeOSLauncher {
       }
     });
 
+    // Power Toggle from Remote
+    this.link.on(MESSAGE_TYPES.POWER, () => {
+      this.togglePower();
+    });
+
     // Unpair
     this.link.on(MESSAGE_TYPES.UNPAIR, (payload, raw) => {
       this.pairedRemotes.delete(raw.senderId);
       if (this.pairedRemotes.size === 0) {
-        this.updatePairingUI(false);
         this.hideCursor();
       }
     });
+  }
+
+  togglePower() {
+    this.isSleeping = !this.isSleeping;
+    let sleepEl = document.getElementById('tv-sleep-overlay');
+    if (!sleepEl) {
+      sleepEl = document.createElement('div');
+      sleepEl.id = 'tv-sleep-overlay';
+      sleepEl.style.cssText = 'position:fixed;inset:0;background:#000000;z-index:99999;transition:opacity 0.5s ease;pointer-events:none;opacity:0;';
+      document.body.appendChild(sleepEl);
+    }
+
+    if (this.isSleeping) {
+      sleepEl.style.opacity = '1';
+      sounds.playBack();
+      this.hideCursor();
+    } else {
+      sleepEl.style.opacity = '0';
+      sounds.playSelect();
+      this.showCursor();
+    }
   }
 
   showCursor() {
@@ -150,16 +160,6 @@ class HomeOSLauncher {
     if (this.cursorEl) {
       this.cursorEl.style.left = `${this.cursorX}px`;
       this.cursorEl.style.top = `${this.cursorY}px`;
-    }
-  }
-
-  updatePairingUI(isConnected) {
-    if (this.pairingDotEl) {
-      if (isConnected) {
-        this.pairingDotEl.classList.add('connected');
-      } else {
-        this.pairingDotEl.classList.remove('connected');
-      }
     }
   }
 

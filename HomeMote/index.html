@@ -22,7 +22,7 @@
       <div class="pairing-header">
         <div class="pairing-icon"></div>
         <h1 class="pairing-title">Connect to your TV</h1>
-        <p class="pairing-subtitle">Enter the 6-digit code shown on the bottom right of HomeOS</p>
+        <p class="pairing-subtitle">Enter the 6-digit code to pair with HomeOS</p>
       </div>
 
       <!-- 6-Box PIN Display -->
@@ -55,24 +55,24 @@
       </div>
     </div>
 
-    <!-- Screen 2: Trackpad Remote (Once Paired) -->
-    <div id="trackpad-screen" class="remote-screen hidden">
-      <header class="trackpad-header">
+    <!-- Screen 2: Single Power Button in the Center -->
+    <div id="power-screen" class="remote-screen hidden">
+      <header class="remote-top-bar">
         <div class="tv-status-badge">
           <span class="status-dot green"></span>
           <span id="connected-tv-name">HomeOS TV</span>
         </div>
-        <button id="btn-unpair" class="btn-unpair" title="Disconnect / Switch TV">Disconnect</button>
+        <button id="btn-unpair" class="btn-disconnect" title="Disconnect / Unpair">Disconnect</button>
       </header>
 
-      <div class="trackpad-container">
-        <div id="mote-trackpad" class="trackpad-surface">
-          <div class="trackpad-hint">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8m-4-4h8"/></svg>
-            <span>Touch & drag to move cursor<br>Tap to click</span>
-          </div>
-        </div>
-      </div>
+      <main class="power-center-container">
+        <button id="btn-power-main" class="main-power-btn" title="Toggle HomeOS Power">
+          <svg class="power-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+            <line x1="12" y1="2" x2="12" y2="12" />
+          </svg>
+        </button>
+      </main>
     </div>
 
   </div>
