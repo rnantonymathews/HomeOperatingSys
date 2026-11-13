@@ -9,6 +9,40 @@
  */
 
 /* ==========================================================================
+   Screen & Visibility Management (Ensures clean single-screen display)
+   ========================================================================== */
+.hidden {
+  display: none !important;
+}
+
+.remote-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  animation: screenFade 0.25s ease-out;
+}
+
+.remote-screen.hidden {
+  display: none !important;
+}
+
+.standby-view.hidden {
+  display: none !important;
+}
+
+.active-view.hidden {
+  display: none !important;
+}
+
+@keyframes screenFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
    Screen 1: Pairing & PIN Entry Screen
    ========================================================================== */
 .pairing-header {

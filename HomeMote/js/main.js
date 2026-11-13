@@ -207,9 +207,13 @@ class HomeMoteController {
 
     this.link.setRoom(`homeos_${pin}`);
 
+    // Send immediately and retry briefly if room switch takes a moment
+    this.link.send(MESSAGE_TYPES.PAIR_REQUEST, { pin });
     setTimeout(() => {
-      this.link.send(MESSAGE_TYPES.PAIR_REQUEST, { pin });
-    }, 150);
+      if (!this.isPaired) {
+        this.link.send(MESSAGE_TYPES.PAIR_REQUEST, { pin });
+      }
+    }, 200);
 
     if (!isAutoConnect) {
       clearTimeout(this.pairTimeout);
@@ -217,7 +221,7 @@ class HomeMoteController {
         if (!this.isPaired) {
           this.triggerPinError('TV not found or code incorrect. Expected 103279.');
         }
-      }, 3500);
+      }, 4000);
     }
   }
 
@@ -659,6 +663,8 @@ class HomeMoteController {
     this.link.on(MESSAGE_TYPES.PAIR_ACCEPTED, (payload) => {
       console.log('[HomeMote] Pairing Accepted by HomeOS:', payload);
       clearTimeout(this.pairTimeout);
+      this.isPaired = true;
+      this.setFeedback('', '');
 
       const pin = payload?.pin || this.enteredPin.join('');
       this.pendingPin = pin;
