@@ -18,6 +18,15 @@ export const MESSAGE_TYPES = {
   VOICE_SEARCH: 'VOICE_SEARCH',   // { query: string }
   KEYBOARD_INPUT: 'KEYBOARD_INPUT', // { text: string, action: 'TYPE' | 'ENTER' | 'BACKSPACE' | 'CLEAR' }
 
+  // App & OTT Management (Remote -> TV)
+  OPEN_APP: 'OPEN_APP',           // { appId: string, title: string, category: string }
+  CLOSE_APP: 'CLOSE_APP',         // { appId: string }
+
+  // Media Controls & State (Bidirectional)
+  MEDIA_STATUS: 'MEDIA_STATUS',   // { isPlaying: boolean, title: string, service: string, currentTime: number }
+  MEDIA_SEEK: 'MEDIA_SEEK',       // { direction: 'FORWARD' | 'BACKWARD', seconds: number }
+  POWER_STATE: 'POWER_STATE',     // { isPoweredOn: boolean }
+
   // System Sync & Feedback (TV -> Remote)
   STATUS_SYNC: 'STATUS_SYNC',     // { focusedApp, isPlaying, volume, muted, keyboardActive, inputPlaceholder, currentTime }
   REQUEST_KEYBOARD: 'REQUEST_KEYBOARD', // { placeholder, currentValue }

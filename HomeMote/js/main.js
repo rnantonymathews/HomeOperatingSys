@@ -1,9 +1,15 @@
 /**
  * HomeMote Controller
- * Setup Flow:
- * 1. Enter PIN (103279)
- * 2. Enter Name ({username})
- * 3. Save both in localStorage and show Centered Power Button
+ * Full 3-Screen Architecture:
+ * 1. PIN Entry (103279)
+ * 2. Name Setup ({username})
+ * 3. Main Controller:
+ *    - Standby State: Centered Big Power Button
+ *    - Powered-On Active State: Top Bar (Green Capsule + Compact Power Button)
+ *      + 3 Modes:
+ *        1. Entertainment (2 in a row OTT grid, sends signal to HomeOS, auto-switches to Freepad)
+ *        2. Freepad (Tactile trackpad, glide moves cursor on TV, tap selects)
+ *        3. Mediapad (Vertical trackpad + double tap to seek left/right or pause/play center; auto-activates when media plays)
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -17,8 +23,28 @@ class HomeMoteController {
     this.pairedPin = localStorage.getItem('homemote_paired_pin') || null;
     this.username = localStorage.getItem('homemote_username') || null;
     this.isPaired = false;
+    this.isPoweredOn = false;
+    this.currentMode = 'entertainment'; // 'entertainment' | 'freepad' | 'mediapad'
 
-    // Initialize HomeLink (using paired room if saved, or temporary room)
+    // Touchpad tracking variables
+    this.pointerActive = false;
+    this.lastPointerX = 0;
+    this.lastPointerY = 0;
+    this.pointerStartX = 0;
+    this.pointerStartY = 0;
+    this.pointerStartTime = 0;
+
+    // Double-tap gesture tracking for Mediapad
+    this.lastTapTime = 0;
+    this.lastTapX = 0;
+    this.lastTapY = 0;
+    this.singleTapTimeout = null;
+
+    // Capsule PIN display timer
+    this.capsuleTimer = null;
+    this.isShowingCapsulePin = false;
+
+    // Initialize HomeLink
     const initialRoom = this.pairedPin ? `homeos_${this.pairedPin}` : 'homeos_pairing_lobby';
     this.link = new HomeLink({
       role: 'remote',
@@ -29,27 +55,29 @@ class HomeMoteController {
   }
 
   init() {
-    console.log('[HomeMote] Initializing Setup Flow...');
+    console.log('[HomeMote] Initializing 3-Mode Controller...');
 
     this.initElements();
     this.setupKeypad();
     this.setupNameForm();
-    this.setupPowerButton();
+    this.setupPowerControls();
+    this.setupConnectedCapsule();
+    this.setupEntertainmentGrid();
+    this.setupFreepadSurface();
+    this.setupMediapadSurface();
+    this.setupModeNavigation();
     this.setupLinkEvents();
     this.registerPWA();
 
     // Check saved state:
     if (this.pairedPin && this.username) {
-      // Both PIN & Name already saved: directly show Power Button
       console.log(`[HomeMote] Fully configured for ${this.username} (PIN: ${this.pairedPin})`);
-      this.showPowerScreen(this.username);
+      this.showMainScreen(this.username);
       this.attemptPair(this.pairedPin, true);
     } else if (this.pairedPin && !this.username) {
-      // PIN saved but name missing: prompt name
       this.pendingPin = this.pairedPin;
       this.showNameScreen();
     } else {
-      // First-time launch: show pairing PIN screen
       this.showPairingScreen();
     }
   }
@@ -57,19 +85,47 @@ class HomeMoteController {
   initElements() {
     this.pairingScreen = document.getElementById('pairing-screen');
     this.nameScreen = document.getElementById('name-screen');
-    this.powerScreen = document.getElementById('power-screen');
+    this.mainScreen = document.getElementById('remote-main-screen');
+
+    this.standbyView = document.getElementById('standby-view');
+    this.activeView = document.getElementById('active-view');
 
     this.pinBoxes = Array.from(document.querySelectorAll('.pin-box'));
     this.pinRow = document.getElementById('pin-display');
     this.feedbackEl = document.getElementById('pairing-feedback');
-    
+
     this.nameInput = document.getElementById('username-input');
     this.nameError = document.getElementById('name-error');
     this.nameForm = document.getElementById('name-form');
 
-    this.userNameEl = document.getElementById('connected-user-name');
+    this.standbyUserNameEl = document.getElementById('standby-user-name');
     this.unpairBtn = document.getElementById('btn-unpair');
-    this.powerBtn = document.getElementById('btn-power-main');
+
+    this.powerMainBtn = document.getElementById('btn-power-main');
+    this.powerActiveBtn = document.getElementById('btn-power-active');
+
+    this.capsuleBtn = document.getElementById('btn-connected-capsule');
+    this.capsuleLabel = document.getElementById('capsule-label');
+
+    // Mode Panels
+    this.modePanels = {
+      entertainment: document.getElementById('mode-entertainment'),
+      freepad: document.getElementById('mode-freepad'),
+      mediapad: document.getElementById('mode-mediapad')
+    };
+
+    // Mode Tab Buttons
+    this.modeTabBtns = Array.from(document.querySelectorAll('.mode-nav-btn'));
+
+    // Surfaces
+    this.freepadSurface = document.getElementById('freepad-surface');
+    this.freepadRipple = document.getElementById('freepad-ripple');
+    this.mediapadSurface = document.getElementById('mediapad-surface');
+    this.mediapadRipple = document.getElementById('mediapad-ripple');
+    this.mediapadHud = document.getElementById('mediapad-hud');
+    this.mediapadHudIcon = document.getElementById('mediapad-hud-icon');
+    this.mediapadHudText = document.getElementById('mediapad-hud-text');
+    this.mediapadStatusHint = document.getElementById('mediapad-status-hint');
 
     if (this.unpairBtn) {
       this.unpairBtn.addEventListener('click', () => {
@@ -79,7 +135,9 @@ class HomeMoteController {
     }
   }
 
-  // --- Step 1: Numpad & 6-Digit PIN Logic ---
+  // =========================================================================
+  // STEP 1: Pairing PIN (103279)
+  // =========================================================================
   setupKeypad() {
     const keys = document.querySelectorAll('.numpad-key[data-key]');
     keys.forEach(btn => {
@@ -93,7 +151,6 @@ class HomeMoteController {
       });
     });
 
-    // Physical desktop keyboard support
     window.addEventListener('keydown', (e) => {
       if (this.pairingScreen && !this.pairingScreen.classList.contains('hidden')) {
         if (e.key >= '0' && e.key <= '9') {
@@ -111,7 +168,6 @@ class HomeMoteController {
     this.enteredPin.push(digit);
     this.updatePinDisplay();
 
-    // Auto-submit on 6th digit
     if (this.enteredPin.length === 6) {
       const pin = this.enteredPin.join('');
       this.attemptPair(pin, false);
@@ -149,15 +205,12 @@ class HomeMoteController {
       this.setFeedback('Verifying PIN with HomeOS...', '');
     }
 
-    // Switch HomeLink to the TV's room
     this.link.setRoom(`homeos_${pin}`);
 
-    // Send real PAIR_REQUEST
     setTimeout(() => {
       this.link.send(MESSAGE_TYPES.PAIR_REQUEST, { pin });
     }, 150);
 
-    // Timeout fallback if TV doesn't respond
     if (!isAutoConnect) {
       clearTimeout(this.pairTimeout);
       this.pairTimeout = setTimeout(() => {
@@ -188,7 +241,9 @@ class HomeMoteController {
     }
   }
 
-  // --- Step 2: Name Input Screen ---
+  // =========================================================================
+  // STEP 2: Name Input
+  // =========================================================================
   setupNameForm() {
     if (!this.nameForm) return;
 
@@ -217,50 +272,371 @@ class HomeMoteController {
     this.username = raw;
     this.pairedPin = this.pendingPin || '103279';
 
-    // Save both data permanently in localStorage
     localStorage.setItem('homemote_paired_pin', this.pairedPin);
     localStorage.setItem('homemote_username', this.username);
-    console.log(`[HomeMote] Saved credentials: PIN=${this.pairedPin}, Name=${this.username}`);
+    console.log(`[HomeMote] Saved: PIN=${this.pairedPin}, Name=${this.username}`);
 
-    // Notify HomeOS
     this.link.send(MESSAGE_TYPES.USER_PROFILE, {
       username: this.username,
       pin: this.pairedPin
     });
 
     haptics.success();
-    this.showPowerScreen(this.username);
+    this.showMainScreen(this.username);
   }
 
-  // --- Screen Navigation ---
+  // =========================================================================
+  // STEP 3: Power Controls (Center Standby <-> Top Right Active)
+  // =========================================================================
+  setupPowerControls() {
+    // 1. Center Big Power Button (Standby View) -> Turn TV ON
+    if (this.powerMainBtn) {
+      this.powerMainBtn.addEventListener('click', () => {
+        haptics.doublePulse();
+        console.log('[HomeMote] Powering ON HomeOS...');
+        this.powerOn();
+      });
+    }
+
+    // 2. Compact Top Right Power Button (Active View) -> Turn TV OFF
+    if (this.powerActiveBtn) {
+      this.powerActiveBtn.addEventListener('click', () => {
+        haptics.doublePulse();
+        console.log('[HomeMote] Powering OFF HomeOS (Standby)...');
+        this.powerOff();
+      });
+    }
+  }
+
+  powerOn() {
+    this.isPoweredOn = true;
+    this.link.send(MESSAGE_TYPES.POWER, { action: 'ON', user: this.username });
+
+    // Transition from Standby to Active View:
+    // Center power button disappears; top bar + body modes appear!
+    if (this.standbyView) this.standbyView.classList.add('hidden');
+    if (this.activeView) this.activeView.classList.remove('hidden');
+
+    // Default to Entertainment mode immediately after power on
+    this.switchMode('entertainment');
+  }
+
+  powerOff() {
+    this.isPoweredOn = false;
+    this.link.send(MESSAGE_TYPES.POWER, { action: 'OFF', user: this.username });
+
+    // Revert back to Standby View (Centered Power Button)
+    if (this.activeView) this.activeView.classList.add('hidden');
+    if (this.standbyView) this.standbyView.classList.remove('hidden');
+  }
+
+  // =========================================================================
+  // Top Left Green Capsule (Connected <-> Code for 10s)
+  // =========================================================================
+  setupConnectedCapsule() {
+    if (!this.capsuleBtn) return;
+
+    this.capsuleBtn.addEventListener('click', () => {
+      haptics.click();
+      this.toggleCapsuleCode();
+    });
+  }
+
+  toggleCapsuleCode() {
+    if (this.isShowingCapsulePin) {
+      // Revert immediately
+      this.revertCapsuleToConnected();
+    } else {
+      // Show code for 10s
+      this.isShowingCapsulePin = true;
+      const code = this.pairedPin || '103279';
+      this.capsuleBtn.classList.add('showing-pin');
+      this.capsuleLabel.textContent = `PIN: ${code}`;
+
+      clearTimeout(this.capsuleTimer);
+      this.capsuleTimer = setTimeout(() => {
+        this.revertCapsuleToConnected();
+      }, 10000);
+    }
+  }
+
+  revertCapsuleToConnected() {
+    this.isShowingCapsulePin = false;
+    clearTimeout(this.capsuleTimer);
+    if (this.capsuleBtn) this.capsuleBtn.classList.remove('showing-pin');
+    if (this.capsuleLabel) this.capsuleLabel.textContent = 'Connected';
+  }
+
+  // =========================================================================
+  // MODE 1: Entertainment (2 OTTs in a row)
+  // =========================================================================
+  setupEntertainmentGrid() {
+    const ottCards = document.querySelectorAll('.ott-card');
+    ottCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const appId = card.getAttribute('data-app-id');
+        const title = card.getAttribute('data-title');
+
+        haptics.select();
+        console.log(`[HomeMote] Launching OTT App on HomeOS: ${title} (${appId})`);
+
+        // Send real signal to HomeOS to open OTT app
+        this.link.send(MESSAGE_TYPES.OPEN_APP, {
+          appId: appId,
+          title: title,
+          user: this.username
+        });
+
+        // "once the OTT app is pressed the pad changes to freepad"
+        this.switchMode('freepad');
+      });
+    });
+  }
+
+  // =========================================================================
+  // MODE 2: Freepad (Fullscreen Trackpad)
+  // =========================================================================
+  setupFreepadSurface() {
+    if (!this.freepadSurface) return;
+
+    this.attachTrackpadListeners(this.freepadSurface, this.freepadRipple, (type, detail) => {
+      if (type === 'move') {
+        // Real-time cursor move on HomeOS
+        this.link.send(MESSAGE_TYPES.CURSOR_MOVE, { dx: detail.dx, dy: detail.dy });
+      } else if (type === 'click') {
+        // Real tap to select on HomeOS
+        haptics.click();
+        this.link.send(MESSAGE_TYPES.CURSOR_CLICK, { action: 'press' });
+        setTimeout(() => {
+          this.link.send(MESSAGE_TYPES.CURSOR_CLICK, { action: 'release' });
+        }, 80);
+      }
+    });
+  }
+
+  // =========================================================================
+  // MODE 3: Mediapad (Vertical Trackpad + Double-Tap Seek & Play/Pause)
+  // =========================================================================
+  setupMediapadSurface() {
+    if (!this.mediapadSurface) return;
+
+    // Attach base cursor tracking
+    this.attachTrackpadListeners(this.mediapadSurface, this.mediapadRipple, (type, detail) => {
+      if (type === 'move') {
+        this.link.send(MESSAGE_TYPES.CURSOR_MOVE, { dx: detail.dx, dy: detail.dy });
+      }
+    });
+
+    // Add Double-Tap Gesture Detection:
+    // Left side: seek -10s | Center: pause/play | Right side: seek +10s
+    this.mediapadSurface.addEventListener('pointerdown', (e) => {
+      const now = Date.now();
+      const rect = this.mediapadSurface.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      const xRatio = clickX / rect.width;
+
+      const timeDiff = now - this.lastTapTime;
+      const dist = Math.hypot(clickX - this.lastTapX, clickY - this.lastTapY);
+
+      if (timeDiff < 340 && dist < 35) {
+        // DOUBLE TAP DETECTED!
+        clearTimeout(this.singleTapTimeout);
+        this.handleMediapadDoubleTap(xRatio);
+        this.lastTapTime = 0; // reset
+      } else {
+        // Record first tap
+        this.lastTapTime = now;
+        this.lastTapX = clickX;
+        this.lastTapY = clickY;
+
+        // Fallback for single tap selection after timeout
+        this.singleTapTimeout = setTimeout(() => {
+          // Normal single tap
+        }, 350);
+      }
+    });
+  }
+
+  handleMediapadDoubleTap(xRatio) {
+    if (xRatio < 0.35) {
+      // LEFT SIDE: Seek Backward -10s
+      haptics.medium();
+      console.log('[HomeMote] Mediapad Double Tap: Seek -10s');
+      this.link.send(MESSAGE_TYPES.MEDIA_SEEK, { direction: 'BACKWARD', seconds: 10 });
+      this.showMediapadHud('⏪', 'Seek -10s');
+    } else if (xRatio > 0.65) {
+      // RIGHT SIDE: Seek Forward +10s
+      haptics.medium();
+      console.log('[HomeMote] Mediapad Double Tap: Seek +10s');
+      this.link.send(MESSAGE_TYPES.MEDIA_SEEK, { direction: 'FORWARD', seconds: 10 });
+      this.showMediapadHud('⏩', 'Seek +10s');
+    } else {
+      // CENTER: Pause / Play Toggle
+      haptics.doublePulse();
+      console.log('[HomeMote] Mediapad Double Tap: Play / Pause Toggle');
+      this.link.send(MESSAGE_TYPES.PLAY_PAUSE, {});
+      this.showMediapadHud('⏯', 'Play / Pause');
+    }
+  }
+
+  showMediapadHud(icon, text) {
+    if (!this.mediapadHud) return;
+    if (this.mediapadHudIcon) this.mediapadHudIcon.textContent = icon;
+    if (this.mediapadHudText) this.mediapadHudText.textContent = text;
+
+    this.mediapadHud.classList.remove('hidden');
+    clearTimeout(this.hudTimeout);
+    this.hudTimeout = setTimeout(() => {
+      if (this.mediapadHud) this.mediapadHud.classList.add('hidden');
+    }, 1100);
+  }
+
+  // =========================================================================
+  // Shared Tactile Trackpad Listener Engine
+  // =========================================================================
+  attachTrackpadListeners(surface, rippleEl, callback) {
+    let isDown = false;
+    let startX = 0, startY = 0, startTime = 0;
+    let lastX = 0, lastY = 0;
+    let totalMoved = 0;
+
+    const onDown = (e) => {
+      isDown = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      startTime = Date.now();
+      totalMoved = 0;
+
+      const rect = surface.getBoundingClientRect();
+      if (rippleEl) {
+        rippleEl.style.left = `${e.clientX - rect.left}px`;
+        rippleEl.style.top = `${e.clientY - rect.top}px`;
+        rippleEl.classList.add('active');
+      }
+
+      surface.setPointerCapture?.(e.pointerId);
+    };
+
+    const onMove = (e) => {
+      if (!isDown) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      totalMoved += Math.hypot(dx, dy);
+
+      if (Math.abs(dx) > 0.2 || Math.abs(dy) > 0.2) {
+        callback('move', { dx, dy });
+      }
+
+      const rect = surface.getBoundingClientRect();
+      if (rippleEl) {
+        rippleEl.style.left = `${e.clientX - rect.left}px`;
+        rippleEl.style.top = `${e.clientY - rect.top}px`;
+      }
+    };
+
+    const onUp = (e) => {
+      if (!isDown) return;
+      isDown = false;
+      const duration = Date.now() - startTime;
+
+      if (rippleEl) rippleEl.classList.remove('active');
+
+      // Tap condition
+      if (duration < 280 && totalMoved < 14) {
+        callback('click', {});
+      }
+    };
+
+    surface.addEventListener('pointerdown', onDown);
+    surface.addEventListener('pointermove', onMove);
+    surface.addEventListener('pointerup', onUp);
+    surface.addEventListener('pointercancel', onUp);
+  }
+
+  // =========================================================================
+  // Bottom Segmented Mode Switcher
+  // =========================================================================
+  setupModeNavigation() {
+    this.modeTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-target');
+        haptics.tick();
+        this.switchMode(target);
+      });
+    });
+  }
+
+  switchMode(mode) {
+    if (!this.modePanels[mode]) return;
+    this.currentMode = mode;
+
+    // Toggle panels
+    Object.keys(this.modePanels).forEach(key => {
+      if (key === mode) {
+        this.modePanels[key].classList.remove('hidden');
+        this.modePanels[key].classList.add('active');
+      } else {
+        this.modePanels[key].classList.add('hidden');
+        this.modePanels[key].classList.remove('active');
+      }
+    });
+
+    // Toggle nav buttons
+    this.modeTabBtns.forEach(btn => {
+      if (btn.getAttribute('data-target') === mode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    console.log(`[HomeMote] Switched mode to: ${mode}`);
+  }
+
+  // =========================================================================
+  // Screen Transitions & Setup Handshake
+  // =========================================================================
   showPairingScreen() {
     if (this.pairingScreen) this.pairingScreen.classList.remove('hidden');
     if (this.nameScreen) this.nameScreen.classList.add('hidden');
-    if (this.powerScreen) this.powerScreen.classList.add('hidden');
+    if (this.mainScreen) this.mainScreen.classList.add('hidden');
   }
 
   showNameScreen() {
     if (this.pairingScreen) this.pairingScreen.classList.add('hidden');
     if (this.nameScreen) this.nameScreen.classList.remove('hidden');
-    if (this.powerScreen) this.powerScreen.classList.add('hidden');
+    if (this.mainScreen) this.mainScreen.classList.add('hidden');
     setTimeout(() => {
       if (this.nameInput) this.nameInput.focus();
     }, 200);
   }
 
-  showPowerScreen(username) {
+  showMainScreen(username) {
     this.isPaired = true;
     if (this.pairingScreen) this.pairingScreen.classList.add('hidden');
     if (this.nameScreen) this.nameScreen.classList.add('hidden');
-    if (this.powerScreen) this.powerScreen.classList.remove('hidden');
-    if (this.userNameEl) {
-      this.userNameEl.textContent = username ? `${username}'s HomeMote` : 'HomeMote';
+    if (this.mainScreen) this.mainScreen.classList.remove('hidden');
+
+    if (this.standbyUserNameEl) {
+      this.standbyUserNameEl.textContent = username ? `${username}'s HomeMote` : 'HomeMote';
+    }
+
+    // Default to Standby view (Single centered power button)
+    if (!this.isPoweredOn) {
+      if (this.standbyView) this.standbyView.classList.remove('hidden');
+      if (this.activeView) this.activeView.classList.add('hidden');
     }
   }
 
   unpair() {
     this.link.send(MESSAGE_TYPES.UNPAIR, { pin: this.pairedPin, username: this.username });
     this.isPaired = false;
+    this.isPoweredOn = false;
     this.pairedPin = null;
     this.pendingPin = null;
     this.username = null;
@@ -276,22 +652,10 @@ class HomeMoteController {
     this.showPairingScreen();
   }
 
-  // --- Step 3: Centered Power Button ---
-  setupPowerButton() {
-    if (!this.powerBtn) return;
-
-    this.powerBtn.addEventListener('click', () => {
-      haptics.doublePulse();
-      console.log(`[HomeMote] Power toggled by ${this.username || 'User'}`);
-      this.link.send(MESSAGE_TYPES.POWER, {
-        triggeredBy: this.username
-      });
-    });
-  }
-
-  // --- Communication Events ---
+  // =========================================================================
+  // Real-time Link Events
+  // =========================================================================
   setupLinkEvents() {
-    // When TV accepts pair request
     this.link.on(MESSAGE_TYPES.PAIR_ACCEPTED, (payload) => {
       console.log('[HomeMote] Pairing Accepted by HomeOS:', payload);
       clearTimeout(this.pairTimeout);
@@ -299,20 +663,42 @@ class HomeMoteController {
       const pin = payload?.pin || this.enteredPin.join('');
       this.pendingPin = pin;
 
-      // If user hasn't set their name yet, show Name Setup screen!
       if (!this.username) {
         haptics.click();
         this.showNameScreen();
       } else {
         haptics.success();
-        this.showPowerScreen(this.username);
+        this.showMainScreen(this.username);
       }
     });
 
-    // When TV rejects pair request
     this.link.on(MESSAGE_TYPES.PAIR_REJECTED, (payload) => {
       clearTimeout(this.pairTimeout);
       this.triggerPinError(payload?.error || 'Incorrect PIN code. Expected 103279.');
+    });
+
+    // "when a media starts playing on the OS, the OS tells media is playing to the MOTE, and the MOTE switch to mediapad"
+    this.link.on(MESSAGE_TYPES.MEDIA_STATUS, (payload) => {
+      console.log('[HomeMote] Received Media Status from HomeOS:', payload);
+      if (payload?.isPlaying) {
+        if (this.mediapadStatusHint && payload?.title) {
+          this.mediapadStatusHint.textContent = `Now Playing: ${payload.title}`;
+        }
+        // Auto-switch to Mediapad!
+        if (this.isPoweredOn && this.currentMode !== 'mediapad') {
+          haptics.tick();
+          this.switchMode('mediapad');
+        }
+      }
+    });
+
+    // Remote sync for Power State from HomeOS
+    this.link.on(MESSAGE_TYPES.POWER_STATE, (payload) => {
+      if (payload?.isPoweredOn && !this.isPoweredOn) {
+        this.powerOn();
+      } else if (!payload?.isPoweredOn && this.isPoweredOn) {
+        this.powerOff();
+      }
     });
   }
 

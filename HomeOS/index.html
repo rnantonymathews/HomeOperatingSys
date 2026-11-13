@@ -48,6 +48,41 @@
       </div>
     </header>
 
+    <!-- Center On-Screen HUD Notification (Seek +10s, -10s, Play/Pause) -->
+    <div id="tv-hud-notification" class="tv-hud-pill hidden">
+      <span id="hud-pill-icon" class="hud-pill-icon">⏯</span>
+      <span id="hud-pill-text" class="hud-pill-text">Play / Pause</span>
+    </div>
+
+    <!-- OTT App Modal Overlay (Triggered when HomeMOTE launches an OTT app) -->
+    <div id="tv-app-overlay" class="tv-app-overlay hidden">
+      <div class="app-window tv-focusable" tabindex="0">
+        <header class="app-window-header">
+          <div class="app-brand-info">
+            <span id="app-window-badge" class="app-window-badge">tv+</span>
+            <span id="app-window-title" class="app-window-title">Apple TV+</span>
+          </div>
+          <button id="btn-close-app" class="btn-app-close tv-focusable" title="Close App">✕</button>
+        </header>
+
+        <div class="app-window-body">
+          <div class="featured-media-card">
+            <div class="media-badge">FEATURED</div>
+            <h2 id="app-media-name" class="media-title">Severance</h2>
+            <p id="app-media-desc" class="media-description">Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives.</p>
+            <div class="media-actions">
+              <button id="btn-app-play" class="btn-media-play tv-focusable">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                <span>Watch Episode 1</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bottom Center: Now Playing Bar (Visible ONLY if some media is playing) -->
     <div id="now-playing-container" class="now-playing-wrapper is-playing">
       <div class="now-playing-pill tv-focusable" tabindex="0">
@@ -70,7 +105,7 @@
         <!-- Play/Pause Button -->
         <button id="btn-np-play" class="np-play-btn" aria-label="Play/Pause">
           <svg id="np-play-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <!-- Triangle Play Icon (mockup shows play button) -->
+            <!-- Triangle Play Icon -->
             <path d="M8 5v14l11-7z"/>
           </svg>
         </button>

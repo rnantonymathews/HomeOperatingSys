@@ -17,7 +17,9 @@
 <body>
   <div id="remote" class="remote-wrapper">
 
-    <!-- Screen 1: Connect to your TV (6-Digit PIN Entry) -->
+    <!-- ====================================================================
+         Screen 1: Connect to your TV (6-Digit PIN Entry)
+         ==================================================================== -->
     <div id="pairing-screen" class="remote-screen">
       <div class="pairing-header">
         <div class="pairing-icon"></div>
@@ -55,7 +57,9 @@
       </div>
     </div>
 
-    <!-- Screen 2: Name Setup -->
+    <!-- ====================================================================
+         Screen 2: Name Setup
+         ==================================================================== -->
     <div id="name-screen" class="remote-screen hidden">
       <div class="name-header">
         <h1 class="name-title">What's your name?</h1>
@@ -71,24 +75,202 @@
       </form>
     </div>
 
-    <!-- Screen 3: Single Power Button in the Center -->
-    <div id="power-screen" class="remote-screen hidden">
-      <header class="remote-top-bar">
-        <div class="tv-status-badge">
-          <span class="status-dot green"></span>
-          <span id="connected-user-name">HomeMote</span>
-        </div>
-        <button id="btn-unpair" class="btn-disconnect" title="Disconnect / Unpair">Disconnect</button>
-      </header>
+    <!-- ====================================================================
+         Screen 3: Main Remote Controller (Standby OR Powered-On Active)
+         ==================================================================== -->
+    <div id="remote-main-screen" class="remote-screen hidden">
 
-      <main class="power-center-container">
-        <button id="btn-power-main" class="main-power-btn" title="Toggle HomeOS Power">
-          <svg class="power-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-            <line x1="12" y1="2" x2="12" y2="12" />
-          </svg>
-        </button>
-      </main>
+      <!-- 3A. Standby State: Big Centered Power Button (Before power is pressed) -->
+      <div id="standby-view" class="standby-view">
+        <header class="remote-top-bar">
+          <div class="tv-status-badge">
+            <span class="status-dot green"></span>
+            <span id="standby-user-name">HomeMote</span>
+          </div>
+          <button id="btn-unpair" class="btn-disconnect" title="Disconnect / Unpair">Disconnect</button>
+        </header>
+
+        <main class="power-center-container">
+          <button id="btn-power-main" class="main-power-btn" title="Turn On HomeOS">
+            <svg class="power-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+              <line x1="12" y1="2" x2="12" y2="12" />
+            </svg>
+          </button>
+          <span class="power-sublabel">Tap to Turn On TV</span>
+        </main>
+      </div>
+
+      <!-- 3B. Powered-On Active State: Top Bar + Body Modes (Entertainment, Freepad, Mediapad) -->
+      <div id="active-view" class="active-view hidden">
+        
+        <!-- Top Bar: Green Capsule (Connected / Code) + Compact Power Button (Top Right) -->
+        <header class="active-top-bar">
+          <!-- Top Left: Green Capsule (Tap shows PIN for 10s) -->
+          <button id="btn-connected-capsule" class="connected-capsule" title="Tap to view TV pairing code">
+            <span class="capsule-dot"></span>
+            <span id="capsule-label" class="capsule-label">Connected</span>
+          </button>
+
+          <!-- Top Right: Power Button (Compact) -->
+          <button id="btn-power-active" class="active-power-btn" title="Turn Off / Standby">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+              <line x1="12" y1="2" x2="12" y2="12" />
+            </svg>
+          </button>
+        </header>
+
+        <!-- Body Area: 3 Modes -->
+        <main class="active-body">
+
+          <!-- MODE 1: Entertainment (2 OTTs in a row) -->
+          <section id="mode-entertainment" class="body-mode-panel active">
+            <div class="panel-header">
+              <h2 class="panel-title">Entertainment</h2>
+              <p class="panel-subtitle">Tap an app to open on HomeOS</p>
+            </div>
+
+            <div class="ott-grid">
+              <!-- Apple TV+ -->
+              <button class="ott-card ott-appletv" data-app-id="appletv" data-title="Apple TV+">
+                <div class="ott-logo">
+                  <svg viewBox="0 0 54 20" fill="none" height="22">
+                    <path d="M12.2 9.5c-.06.05-1.15.78-1.15 2.16 0 1.69 1.4 2.29 1.46 2.32-.02.06-.23.8-1 1.6-.47.69-.95 1.37-1.7 1.37-.73 0-.97-.44-1.83-.44-.87 0-1.13.44-1.84.44-.73 0-1.27-.72-1.75-1.41-.97-1.42-1.7-4.01-1.7-6.32 0-3.68 2.39-5.62 4.74-5.62 1.25 0 2.31.84 3.04.84.7 0 1.89-.88 3.26-.88.52 0 2.4.05 3.63 1.86-2.98 1.45-2.48 4.92.05 6.01zM9.49 3.48c.61-.77 1.03-1.83.91-2.9-.89.04-1.95.59-2.58 1.34-.55.64-1.03 1.7-0.9 2.75 1 .08 2.01-.52 2.57-1.19z" fill="#FFFFFF"/>
+                    <text x="18" y="15.5" font-family="-apple-system, sans-serif" font-weight="700" font-size="15" fill="#FFFFFF">tv+</text>
+                  </svg>
+                </div>
+                <span class="ott-name">Apple TV+</span>
+                <span class="ott-desc">Severance & Originals</span>
+              </button>
+
+              <!-- Netflix -->
+              <button class="ott-card ott-netflix" data-app-id="netflix" data-title="Netflix">
+                <div class="ott-logo">
+                  <span class="ott-brand-text netflix-red">NETFLIX</span>
+                </div>
+                <span class="ott-name">Netflix</span>
+                <span class="ott-desc">Movies & Series</span>
+              </button>
+
+              <!-- Prime Video -->
+              <button class="ott-card ott-prime" data-app-id="prime" data-title="Prime Video">
+                <div class="ott-logo">
+                  <span class="ott-brand-text prime-blue">prime video</span>
+                </div>
+                <span class="ott-name">Prime Video</span>
+                <span class="ott-desc">Amazon Originals</span>
+              </button>
+
+              <!-- Disney+ Hotstar -->
+              <button class="ott-card ott-disney" data-app-id="disney" data-title="Disney+">
+                <div class="ott-logo">
+                  <span class="ott-brand-text disney-white">Disney+</span>
+                </div>
+                <span class="ott-name">Disney+</span>
+                <span class="ott-desc">Marvel & Pixar</span>
+              </button>
+
+              <!-- YouTube -->
+              <button class="ott-card ott-youtube" data-app-id="youtube" data-title="YouTube">
+                <div class="ott-logo">
+                  <svg viewBox="0 0 36 24" height="20" fill="none">
+                    <rect width="36" height="24" rx="6" fill="#FF0000"/>
+                    <polygon points="14,6 25,12 14,18" fill="#FFFFFF"/>
+                  </svg>
+                </div>
+                <span class="ott-name">YouTube</span>
+                <span class="ott-desc">Videos & Creators</span>
+              </button>
+
+              <!-- Spotify -->
+              <button class="ott-card ott-spotify" data-app-id="spotify" data-title="Spotify">
+                <div class="ott-logo">
+                  <svg viewBox="0 0 24 24" height="22" fill="#1DB954">
+                    <circle cx="12" cy="12" r="10" fill="#1DB954"/>
+                    <path d="M7 9.5c3.2-1 6.8-.7 10 1M7.5 12.5c2.7-.8 5.7-.6 8.3.8M8 15.5c2.2-.6 4.6-.4 6.7.7" stroke="#121212" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="ott-name">Spotify</span>
+                <span class="ott-desc">Music & Podcasts</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- MODE 2: Freepad (Fullscreen Trackpad) -->
+          <section id="mode-freepad" class="body-mode-panel hidden">
+            <div class="pad-banner">
+              <span class="pad-pill-tag">Freepad</span>
+              <span class="pad-tag-hint">Glide to move TV cursor · Tap to select</span>
+            </div>
+
+            <!-- Tactile Freepad Surface -->
+            <div id="freepad-surface" class="tactile-trackpad">
+              <div class="pad-crosshair"></div>
+              <div class="pad-center-mark">
+                <svg viewBox="0 0 24 24" width="32" height="32" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" fill="none">
+                  <circle cx="12" cy="12" r="8"/>
+                  <path d="M12 8v8M8 12h8"/>
+                </svg>
+              </div>
+              <div id="freepad-ripple" class="pad-touch-ripple"></div>
+            </div>
+          </section>
+
+          <!-- MODE 3: Mediapad (Vertical Trackpad + Double-Tap Seek & Play/Pause) -->
+          <section id="mode-mediapad" class="body-mode-panel hidden">
+            <div class="pad-banner mediapad-banner">
+              <span class="pad-pill-tag media-tag">Mediapad</span>
+              <span id="mediapad-status-hint" class="pad-tag-hint">Double Tap: Left ⏪ · Center ⏯ · Right ⏩</span>
+            </div>
+
+            <!-- Tactile Mediapad Surface -->
+            <div id="mediapad-surface" class="tactile-trackpad mediapad-trackpad">
+              <!-- Visual Zones Overlay for Clear Interaction -->
+              <div class="media-gesture-zones">
+                <div class="gesture-col col-left">
+                  <span class="gesture-icon">⏪</span>
+                  <span class="gesture-text">Double Tap<br>-10s</span>
+                </div>
+                <div class="gesture-col col-center">
+                  <span class="gesture-icon">⏯</span>
+                  <span class="gesture-text">Double Tap<br>Play / Pause</span>
+                </div>
+                <div class="gesture-col col-right">
+                  <span class="gesture-icon">⏩</span>
+                  <span class="gesture-text">Double Tap<br>+10s</span>
+                </div>
+              </div>
+
+              <!-- Animated Floating Feedback HUD -->
+              <div id="mediapad-hud" class="mediapad-hud hidden">
+                <span id="mediapad-hud-icon">⏯</span>
+                <span id="mediapad-hud-text">Play / Pause</span>
+              </div>
+
+              <div id="mediapad-ripple" class="pad-touch-ripple"></div>
+            </div>
+          </section>
+
+        </main>
+
+        <!-- Bottom Mode Switcher Nav (Apple Segmented Bar) -->
+        <nav class="bottom-mode-nav">
+          <button class="mode-nav-btn active" data-target="entertainment">
+            <span class="nav-icon">🎬</span>
+            <span class="nav-label">Entertainment</span>
+          </button>
+          <button class="mode-nav-btn" data-target="freepad">
+            <span class="nav-icon">🖱️</span>
+            <span class="nav-label">Freepad</span>
+          </button>
+          <button class="mode-nav-btn" data-target="mediapad">
+            <span class="nav-icon">🎵</span>
+            <span class="nav-label">Mediapad</span>
+          </button>
+        </nav>
+
+      </div>
     </div>
 
   </div>
