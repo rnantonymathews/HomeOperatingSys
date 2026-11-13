@@ -27,12 +27,12 @@ class HomeOSLauncher {
   }
 
   getOrCreatePinCode() {
-    // Generate or retain 6-digit code in sessionStorage
-    let stored = sessionStorage.getItem('homeos_pairing_pin');
+    // Generate once and store permanently in localStorage (never shuffles)
+    let stored = localStorage.getItem('homeos_pairing_pin') || sessionStorage.getItem('homeos_pairing_pin');
     if (!stored || stored.length !== 6 || isNaN(stored)) {
       stored = Math.floor(100000 + Math.random() * 900000).toString();
-      sessionStorage.setItem('homeos_pairing_pin', stored);
     }
+    localStorage.setItem('homeos_pairing_pin', stored);
     return stored;
   }
 
