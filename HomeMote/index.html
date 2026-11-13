@@ -55,12 +55,29 @@
       </div>
     </div>
 
-    <!-- Screen 2: Single Power Button in the Center -->
+    <!-- Screen 2: Name Setup -->
+    <div id="name-screen" class="remote-screen hidden">
+      <div class="name-header">
+        <div class="name-avatar">👤</div>
+        <h1 class="name-title">What's your name?</h1>
+        <p class="name-subtitle">Personalize your HomeMote controller</p>
+      </div>
+
+      <form id="name-form" class="name-form" onsubmit="return false;">
+        <div class="input-wrapper">
+          <input type="text" id="username-input" class="name-input" placeholder="e.g. Aaron Antony" autocomplete="name" maxlength="30" />
+        </div>
+        <div id="name-error" class="pairing-feedback"></div>
+        <button type="submit" id="btn-save-name" class="btn-primary-action">Continue</button>
+      </form>
+    </div>
+
+    <!-- Screen 3: Single Power Button in the Center -->
     <div id="power-screen" class="remote-screen hidden">
       <header class="remote-top-bar">
         <div class="tv-status-badge">
           <span class="status-dot green"></span>
-          <span id="connected-tv-name">HomeOS TV</span>
+          <span id="connected-user-name">HomeMote</span>
         </div>
         <button id="btn-unpair" class="btn-disconnect" title="Disconnect / Unpair">Disconnect</button>
       </header>

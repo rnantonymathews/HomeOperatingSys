@@ -24,6 +24,9 @@ export const MESSAGE_TYPES = {
   DISMISS_KEYBOARD: 'DISMISS_KEYBOARD', // {}
   HAPTIC_TRIGGER: 'HAPTIC_TRIGGER', // { pattern: 'light' | 'medium' | 'heavy' | 'success' | 'selection' }
 
+  // User Profile
+  USER_PROFILE: 'USER_PROFILE',     // { username: string }
+
   // Touchpad & Cursor Tracking (Remote -> TV)
   CURSOR_MOVE: 'CURSOR_MOVE',       // { dx: number, dy: number }
   CURSOR_CLICK: 'CURSOR_CLICK',     // { action: 'press' | 'release' }

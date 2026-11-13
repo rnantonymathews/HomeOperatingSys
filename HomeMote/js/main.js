@@ -1,6 +1,9 @@
 /**
  * HomeMote Controller
- * Connect to TV Screen (PIN: 103279) -> Centered Power Button Remote Screen
+ * Setup Flow:
+ * 1. Enter PIN (103279)
+ * 2. Enter Name ({username})
+ * 3. Save both in localStorage and show Centered Power Button
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -10,7 +13,9 @@ import { haptics } from './haptics.js';
 class HomeMoteController {
   constructor() {
     this.enteredPin = [];
+    this.pendingPin = null;
     this.pairedPin = localStorage.getItem('homemote_paired_pin') || null;
+    this.username = localStorage.getItem('homemote_username') || null;
     this.isPaired = false;
 
     // Initialize HomeLink (using paired room if saved, or temporary room)
@@ -24,29 +29,45 @@ class HomeMoteController {
   }
 
   init() {
-    console.log('[HomeMote] Initializing Remote...');
+    console.log('[HomeMote] Initializing Setup Flow...');
 
     this.initElements();
     this.setupKeypad();
+    this.setupNameForm();
     this.setupPowerButton();
     this.setupLinkEvents();
     this.registerPWA();
 
-    // If already paired in localStorage, directly show the Power Button screen
-    if (this.pairedPin && this.pairedPin.length === 6) {
-      console.log(`[HomeMote] Already paired with PIN: ${this.pairedPin}`);
-      this.showPowerScreen('HomeOS TV');
+    // Check saved state:
+    if (this.pairedPin && this.username) {
+      // Both PIN & Name already saved: directly show Power Button
+      console.log(`[HomeMote] Fully configured for ${this.username} (PIN: ${this.pairedPin})`);
+      this.showPowerScreen(this.username);
       this.attemptPair(this.pairedPin, true);
+    } else if (this.pairedPin && !this.username) {
+      // PIN saved but name missing: prompt name
+      this.pendingPin = this.pairedPin;
+      this.showNameScreen();
+    } else {
+      // First-time launch: show pairing PIN screen
+      this.showPairingScreen();
     }
   }
 
   initElements() {
     this.pairingScreen = document.getElementById('pairing-screen');
+    this.nameScreen = document.getElementById('name-screen');
     this.powerScreen = document.getElementById('power-screen');
+
     this.pinBoxes = Array.from(document.querySelectorAll('.pin-box'));
     this.pinRow = document.getElementById('pin-display');
     this.feedbackEl = document.getElementById('pairing-feedback');
-    this.tvNameEl = document.getElementById('connected-tv-name');
+    
+    this.nameInput = document.getElementById('username-input');
+    this.nameError = document.getElementById('name-error');
+    this.nameForm = document.getElementById('name-form');
+
+    this.userNameEl = document.getElementById('connected-user-name');
     this.unpairBtn = document.getElementById('btn-unpair');
     this.powerBtn = document.getElementById('btn-power-main');
 
@@ -58,7 +79,7 @@ class HomeMoteController {
     }
   }
 
-  // --- Screen 1: Numpad & 6-Digit PIN Logic ---
+  // --- Step 1: Numpad & 6-Digit PIN Logic ---
   setupKeypad() {
     const keys = document.querySelectorAll('.numpad-key[data-key]');
     keys.forEach(btn => {
@@ -74,11 +95,12 @@ class HomeMoteController {
 
     // Physical desktop keyboard support
     window.addEventListener('keydown', (e) => {
-      if (this.isPaired) return;
-      if (e.key >= '0' && e.key <= '9') {
-        this.handleDigit(e.key);
-      } else if (e.key === 'Backspace') {
-        this.handleBackspace();
+      if (this.pairingScreen && !this.pairingScreen.classList.contains('hidden')) {
+        if (e.key >= '0' && e.key <= '9') {
+          this.handleDigit(e.key);
+        } else if (e.key === 'Backspace') {
+          this.handleBackspace();
+        }
       }
     });
   }
@@ -124,7 +146,7 @@ class HomeMoteController {
   attemptPair(pin, isAutoConnect = false) {
     console.log(`[HomeMote] Attempting pair with PIN: ${pin}`);
     if (!isAutoConnect) {
-      this.setFeedback('Connecting to HomeOS TV...', '');
+      this.setFeedback('Verifying PIN with HomeOS...', '');
     }
 
     // Switch HomeLink to the TV's room
@@ -140,7 +162,7 @@ class HomeMoteController {
       clearTimeout(this.pairTimeout);
       this.pairTimeout = setTimeout(() => {
         if (!this.isPaired) {
-          this.triggerPinError('TV not found or incorrect code. Please check HomeOS.');
+          this.triggerPinError('TV not found or code incorrect. Expected 103279.');
         }
       }, 3500);
     }
@@ -166,35 +188,104 @@ class HomeMoteController {
     }
   }
 
-  showPowerScreen(tvName) {
+  // --- Step 2: Name Input Screen ---
+  setupNameForm() {
+    if (!this.nameForm) return;
+
+    this.nameForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.submitName();
+    });
+
+    const submitBtn = document.getElementById('btn-save-name');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.submitName();
+      });
+    }
+  }
+
+  submitName() {
+    const raw = this.nameInput ? this.nameInput.value.trim() : '';
+    if (!raw) {
+      if (this.nameError) this.nameError.textContent = 'Please enter your name.';
+      haptics.error();
+      return;
+    }
+
+    this.username = raw;
+    this.pairedPin = this.pendingPin || '103279';
+
+    // Save both data permanently in localStorage
+    localStorage.setItem('homemote_paired_pin', this.pairedPin);
+    localStorage.setItem('homemote_username', this.username);
+    console.log(`[HomeMote] Saved credentials: PIN=${this.pairedPin}, Name=${this.username}`);
+
+    // Notify HomeOS
+    this.link.send(MESSAGE_TYPES.USER_PROFILE, {
+      username: this.username,
+      pin: this.pairedPin
+    });
+
+    haptics.success();
+    this.showPowerScreen(this.username);
+  }
+
+  // --- Screen Navigation ---
+  showPairingScreen() {
+    if (this.pairingScreen) this.pairingScreen.classList.remove('hidden');
+    if (this.nameScreen) this.nameScreen.classList.add('hidden');
+    if (this.powerScreen) this.powerScreen.classList.add('hidden');
+  }
+
+  showNameScreen() {
+    if (this.pairingScreen) this.pairingScreen.classList.add('hidden');
+    if (this.nameScreen) this.nameScreen.classList.remove('hidden');
+    if (this.powerScreen) this.powerScreen.classList.add('hidden');
+    setTimeout(() => {
+      if (this.nameInput) this.nameInput.focus();
+    }, 200);
+  }
+
+  showPowerScreen(username) {
     this.isPaired = true;
     if (this.pairingScreen) this.pairingScreen.classList.add('hidden');
+    if (this.nameScreen) this.nameScreen.classList.add('hidden');
     if (this.powerScreen) this.powerScreen.classList.remove('hidden');
-    if (this.tvNameEl) this.tvNameEl.textContent = tvName || 'HomeOS TV';
+    if (this.userNameEl) {
+      this.userNameEl.textContent = username ? `${username}'s HomeMote` : 'HomeMote';
+    }
   }
 
   unpair() {
-    this.link.send(MESSAGE_TYPES.UNPAIR, { pin: this.pairedPin });
+    this.link.send(MESSAGE_TYPES.UNPAIR, { pin: this.pairedPin, username: this.username });
     this.isPaired = false;
     this.pairedPin = null;
+    this.pendingPin = null;
+    this.username = null;
+
     localStorage.removeItem('homemote_paired_pin');
+    localStorage.removeItem('homemote_username');
 
     this.enteredPin = [];
     this.updatePinDisplay();
     this.setFeedback('', '');
+    if (this.nameInput) this.nameInput.value = '';
 
-    if (this.powerScreen) this.powerScreen.classList.add('hidden');
-    if (this.pairingScreen) this.pairingScreen.classList.remove('hidden');
+    this.showPairingScreen();
   }
 
-  // --- Screen 2: Centered Power Button ---
+  // --- Step 3: Centered Power Button ---
   setupPowerButton() {
     if (!this.powerBtn) return;
 
     this.powerBtn.addEventListener('click', () => {
       haptics.doublePulse();
-      console.log('[HomeMote] Power button pressed');
-      this.link.send(MESSAGE_TYPES.POWER);
+      console.log(`[HomeMote] Power toggled by ${this.username || 'User'}`);
+      this.link.send(MESSAGE_TYPES.POWER, {
+        triggeredBy: this.username
+      });
     });
   }
 
@@ -204,19 +295,24 @@ class HomeMoteController {
     this.link.on(MESSAGE_TYPES.PAIR_ACCEPTED, (payload) => {
       console.log('[HomeMote] Pairing Accepted by HomeOS:', payload);
       clearTimeout(this.pairTimeout);
-      haptics.success();
 
       const pin = payload?.pin || this.enteredPin.join('');
-      this.pairedPin = pin;
-      localStorage.setItem('homemote_paired_pin', pin);
+      this.pendingPin = pin;
 
-      this.showPowerScreen(payload?.tvName || 'HomeOS TV');
+      // If user hasn't set their name yet, show Name Setup screen!
+      if (!this.username) {
+        haptics.click();
+        this.showNameScreen();
+      } else {
+        haptics.success();
+        this.showPowerScreen(this.username);
+      }
     });
 
     // When TV rejects pair request
     this.link.on(MESSAGE_TYPES.PAIR_REJECTED, (payload) => {
       clearTimeout(this.pairTimeout);
-      this.triggerPinError(payload?.error || 'Incorrect code.');
+      this.triggerPinError(payload?.error || 'Incorrect PIN code. Expected 103279.');
     });
   }
 

@@ -107,6 +107,15 @@ class HomeOSLauncher {
       }
     });
 
+    // Remote User Profile (e.g. "Aaron Antony")
+    this.link.on(MESSAGE_TYPES.USER_PROFILE, (payload) => {
+      const username = payload?.username;
+      if (username) {
+        console.log(`[HomeOS] Connected Remote belongs to: ${username}`);
+        localStorage.setItem('homeos_remote_user', username);
+      }
+    });
+
     // Power Toggle from Remote
     this.link.on(MESSAGE_TYPES.POWER, () => {
       this.togglePower();
