@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>HomeOS - tvOS Launcher</title>
+  <title>HomeOS</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#06080d">
@@ -13,9 +13,73 @@
 
   <link rel="stylesheet" href="css/tvos-core.css">
   <link rel="stylesheet" href="css/launcher.css">
+  <link rel="stylesheet" href="css/homescreen.css">
 </head>
 <body>
   <div id="app" class="tv-viewport">
+
+    <!-- Top Bar: Date, Time, Weather (Left) and User Greetings (Right) -->
+    <header class="homeos-topbar">
+      <!-- Top Left: Date, Time & Weather -->
+      <div class="top-left-widget">
+        <div class="datetime-block">
+          <span id="header-date" class="header-date">Mon, Nov 10</span>
+          <span id="header-time" class="header-time">8:45 PM</span>
+        </div>
+        
+        <div class="widget-divider"></div>
+        
+        <div class="weather-block">
+          <div class="weather-temp-row">
+            <svg class="weather-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9.5" cy="9.5" r="5" fill="#FFB300"/>
+              <circle cx="9.5" cy="9.5" r="6.5" stroke="#FFE082" stroke-width="1" stroke-opacity="0.4"/>
+              <path d="M19.5 17.5H8.5a4.5 4.5 0 0 1-1.2-8.84A5.5 5.5 0 0 1 18 11.2a3.5 3.5 0 0 1 1.5 6.3z" fill="#FFFFFF" fill-opacity="0.95"/>
+            </svg>
+            <span id="weather-temp" class="weather-temp">26°C</span>
+          </div>
+          <span id="weather-city" class="weather-city">Bengaluru</span>
+        </div>
+      </div>
+
+      <!-- Top Right: User Greetings -->
+      <div class="top-right-widget">
+        <span id="user-greeting" class="user-greeting">Good evening, Aaron</span>
+      </div>
+    </header>
+
+    <!-- Bottom Center: Now Playing Bar (Visible ONLY if some media is playing) -->
+    <div id="now-playing-container" class="now-playing-wrapper is-playing">
+      <div class="now-playing-pill tv-focusable" tabindex="0">
+        <!-- Service Logo: Apple TV -->
+        <div class="np-service-logo">
+          <svg class="apple-tv-svg" viewBox="0 0 48 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.8 8.4c-.05.04-1.02.69-1.02 1.91 0 1.5 1.24 2.03 1.29 2.06-.02.05-.2.71-.89 1.42-.42.61-.84 1.22-1.51 1.22-.65 0-.86-.39-1.62-.39-.77 0-1 .39-1.63.39-.65 0-1.13-.64-1.55-1.25-.86-1.26-1.51-3.56-1.51-5.61 0-3.26 2.12-4.99 4.2-4.99 1.11 0 2.05.75 2.7.75.62 0 1.68-.78 2.89-.78.46 0 2.13.04 3.22 1.65-2.64 1.29-2.2 4.37.04 5.34zM8.39 3.09c.54-.68.91-1.62.81-2.57-.79.04-1.73.52-2.29 1.19-.49.57-.92 1.51-.8 2.44.89.07 1.79-.46 2.28-1.06z" fill="#FFFFFF"/>
+            <text x="17" y="14" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-weight="700" font-size="14.5" fill="#FFFFFF" letter-spacing="-0.4px">tv</text>
+          </svg>
+        </div>
+
+        <div class="np-pill-divider"></div>
+
+        <!-- Track Info -->
+        <div class="np-track-info">
+          <span class="np-status-label">Now Playing</span>
+          <span id="np-title" class="np-title np-media-title">Severance</span>
+        </div>
+
+        <!-- Play/Pause Button -->
+        <button id="btn-np-play" class="np-play-btn" aria-label="Play/Pause">
+          <svg id="np-play-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <!-- Triangle Play Icon (mockup shows play button) -->
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Apple tvOS Home Indicator Line -->
+      <div class="tv-home-indicator"></div>
+    </div>
+
     <!-- Blue Circle Remote Cursor -->
     <div id="tv-cursor"></div>
   </div>

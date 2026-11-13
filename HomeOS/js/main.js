@@ -1,6 +1,10 @@
 /**
  * HomeOS Main Controller
- * Embedded PIN: 103279 (Clean display, real handshake, live cursor & power toggle)
+ * tvOS Launcher Homescreen:
+ * 1. Top Left: Date, Time & Weather
+ * 2. Top Right: User Greetings ("Good evening, Aaron")
+ * 3. Bottom Center: Now Playing Bar (visible ONLY if media is playing)
+ * Real handshake, live cursor & power toggle, dynamic storage
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -9,13 +13,20 @@ import { sounds } from './sound.js';
 
 class HomeOSLauncher {
   constructor() {
-    // Fixed embedded code as requested
+    // Fixed embedded PIN code
     this.pinCode = '103279';
     localStorage.setItem('homeos_pairing_pin', this.pinCode);
 
     this.pairedRemotes = new Set();
     this.isSleeping = false;
-    
+
+    // Media State ("Now Playing Bar, but only if some media is playing")
+    this.mediaState = {
+      isPlaying: true, // Default to active sample as shown in mockup
+      title: 'Severance',
+      service: 'tv'
+    };
+
     // Initialize HomeLink for this TV PIN room
     this.link = new HomeLink({
       role: 'tv',
@@ -34,15 +45,149 @@ class HomeOSLauncher {
     console.log(`[HomeOS] Initialized with embedded PIN: ${this.pinCode}`);
 
     this.initElements();
+    this.initClockAndWeather();
+    this.initUserGreeting();
+    this.initNowPlaying();
     this.setupLinkEvents();
     this.registerPWA();
   }
 
   initElements() {
     this.cursorEl = document.getElementById('tv-cursor');
+    this.dateEl = document.getElementById('header-date');
+    this.timeEl = document.getElementById('header-time');
+    this.weatherTempEl = document.getElementById('weather-temp');
+    this.weatherCityEl = document.getElementById('weather-city');
+    this.greetingEl = document.getElementById('user-greeting');
+    this.nowPlayingContainer = document.getElementById('now-playing-container');
+    this.nowPlayingTitle = document.getElementById('np-title');
+    this.btnPlay = document.getElementById('btn-np-play');
+    this.playIcon = document.getElementById('np-play-icon');
+
     this.updateCursorPosition();
   }
 
+  // =========================================================================
+  // 1. TOP LEFT: Date & Time + Weather
+  // =========================================================================
+  initClockAndWeather() {
+    this.updateDateTime();
+    // Update every second for accurate clock display
+    this.clockInterval = setInterval(() => this.updateDateTime(), 1000);
+  }
+
+  updateDateTime() {
+    const now = new Date();
+
+    // Date formatted as "Mon, Nov 10"
+    if (this.dateEl) {
+      const dateStr = now.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+      this.dateEl.textContent = dateStr;
+    }
+
+    // Time formatted as "8:45 PM"
+    if (this.timeEl) {
+      const timeStr = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      this.timeEl.textContent = timeStr;
+    }
+  }
+
+  // =========================================================================
+  // 2. TOP RIGHT: User Greetings
+  // =========================================================================
+  initUserGreeting() {
+    this.updateGreeting();
+    // Re-check periodically for day/evening transitions
+    setInterval(() => this.updateGreeting(), 30000);
+  }
+
+  getGreetingPhrase() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 17) return 'Good afternoon';
+    if (hour >= 17 && hour < 22) return 'Good evening';
+    return 'Good night';
+  }
+
+  getUserFirstName() {
+    const storedUser = localStorage.getItem('homeos_remote_user') || 'Aaron';
+    const trimmed = storedUser.trim();
+    return trimmed ? trimmed.split(' ')[0] : 'Aaron';
+  }
+
+  updateGreeting() {
+    if (this.greetingEl) {
+      const greeting = this.getGreetingPhrase();
+      const name = this.getUserFirstName();
+      this.greetingEl.textContent = `${greeting}, ${name}`;
+    }
+  }
+
+  // =========================================================================
+  // 3. BOTTOM CENTER: Now Playing Bar (Only if media is playing)
+  // =========================================================================
+  initNowPlaying() {
+    this.updateNowPlayingUI();
+
+    // Play/Pause button interaction
+    if (this.btnPlay) {
+      this.btnPlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleMediaPlayState();
+      });
+    }
+
+    // Interactive testing shortcut: Space bar or 'M' key toggles playback
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.key === 'm' || e.key === 'M') {
+        this.toggleMediaPlayState();
+      }
+    });
+  }
+
+  setMediaPlaying(isPlaying, title = null) {
+    this.mediaState.isPlaying = Boolean(isPlaying);
+    if (title) this.mediaState.title = title;
+    this.updateNowPlayingUI();
+    console.log(`[HomeOS] setMediaPlaying -> ${this.mediaState.isPlaying} (${this.mediaState.title})`);
+  }
+
+  toggleMediaPlayState() {
+    this.mediaState.isPlaying = !this.mediaState.isPlaying;
+    sounds.playSelect();
+    this.updateNowPlayingUI();
+    console.log(`[HomeOS] Media state toggled: isPlaying=${this.mediaState.isPlaying}`);
+  }
+
+  updateNowPlayingUI() {
+    if (!this.nowPlayingContainer) return;
+
+    if (this.mediaState.isPlaying) {
+      this.nowPlayingContainer.classList.add('is-playing');
+      if (this.nowPlayingTitle) {
+        this.nowPlayingTitle.textContent = this.mediaState.title;
+      }
+      if (this.playIcon) {
+        // Triangle Play Glyph
+        this.playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      }
+    } else {
+      // Hidden when no media is playing
+      this.nowPlayingContainer.classList.remove('is-playing');
+    }
+  }
+
+  // =========================================================================
+  // Link & Remote Events
+  // =========================================================================
   setupLinkEvents() {
     this.link.onStatusChange((status) => {
       console.log(`[HomeOS Link] Status: ${status}`);
@@ -54,24 +199,20 @@ class HomeOSLauncher {
       console.log(`[HomeOS] Received Pair Request with PIN: "${incomingPin}" (Embedded: "${this.pinCode}")`);
 
       if (incomingPin === this.pinCode) {
-        // Successful real pairing!
         this.pairedRemotes.add(raw.senderId);
         sounds.playConnectChime();
 
-        // Confirm back to remote
         this.link.send(MESSAGE_TYPES.PAIR_ACCEPTED, {
           tvName: 'HomeOS TV',
           pin: this.pinCode
         });
 
-        // Wake screen if sleeping
         if (this.isSleeping) {
           this.togglePower();
         }
 
         this.showCursor();
       } else {
-        // Rejected
         this.link.send(MESSAGE_TYPES.PAIR_REJECTED, {
           error: 'Incorrect 6-digit PIN code.'
         });
@@ -113,7 +254,13 @@ class HomeOSLauncher {
       if (username) {
         console.log(`[HomeOS] Connected Remote belongs to: ${username}`);
         localStorage.setItem('homeos_remote_user', username);
+        this.updateGreeting();
       }
+    });
+
+    // Play / Pause Toggle from Remote
+    this.link.on(MESSAGE_TYPES.PLAY_PAUSE, () => {
+      this.toggleMediaPlayState();
     });
 
     // Power Toggle from Remote
