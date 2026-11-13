@@ -1,15 +1,13 @@
 /**
  * HomeMote Controller
- * Full 3-Screen Architecture:
- * 1. PIN Entry (103279)
- * 2. Name Setup ({username})
- * 3. Main Controller:
- *    - Standby State: Centered Big Power Button
- *    - Powered-On Active State: Top Bar (Green Capsule + Compact Power Button)
- *      + 3 Modes:
- *        1. Entertainment (2 in a row OTT grid, sends signal to HomeOS, auto-switches to Freepad)
- *        2. Freepad (Tactile trackpad, glide moves cursor on TV, tap selects)
- *        3. Mediapad (Vertical trackpad + double tap to seek left/right or pause/play center; auto-activates when media plays)
+ * Complete 3-Pad Dynamic Flow:
+ * - Standby: Centered Big Power Button
+ * - Active: Top Bar (Green Capsule + Compact Power Button)
+ * - Flow: Power ON -> EntertainmentPad (10 OTT apps with uploaded icons, 2 in row)
+ *         -> App Chosen -> Freepad (Tactile trackpad, glide moves cursor on TV, tap selects)
+ *         -> Media Playing Signal Received -> Mediapad (Vertical trackpad + double-tap seek/pause)
+ * - Universal Persistent Footer across all 3 pads:
+ *   [ Back | Home | Volume | AI ] (Icons Only)
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -26,7 +24,7 @@ class HomeMoteController {
     this.isPoweredOn = false;
     this.currentMode = 'entertainment'; // 'entertainment' | 'freepad' | 'mediapad'
 
-    // Touchpad tracking variables
+    // Touchpad tracking
     this.pointerActive = false;
     this.lastPointerX = 0;
     this.lastPointerY = 0;
@@ -55,7 +53,7 @@ class HomeMoteController {
   }
 
   init() {
-    console.log('[HomeMote] Initializing 3-Mode Controller...');
+    console.log('[HomeMote] Initializing 3-Pad Controller with Universal Footer...');
 
     this.initElements();
     this.setupKeypad();
@@ -65,7 +63,7 @@ class HomeMoteController {
     this.setupEntertainmentGrid();
     this.setupFreepadSurface();
     this.setupMediapadSurface();
-    this.setupModeNavigation();
+    this.setupUniversalFooter();
     this.setupLinkEvents();
     this.registerPWA();
 
@@ -107,15 +105,18 @@ class HomeMoteController {
     this.capsuleBtn = document.getElementById('btn-connected-capsule');
     this.capsuleLabel = document.getElementById('capsule-label');
 
-    // Mode Panels
+    // Mode Panels (Pads)
     this.modePanels = {
       entertainment: document.getElementById('mode-entertainment'),
       freepad: document.getElementById('mode-freepad'),
       mediapad: document.getElementById('mode-mediapad')
     };
 
-    // Mode Tab Buttons
-    this.modeTabBtns = Array.from(document.querySelectorAll('.mode-nav-btn'));
+    // Universal Footer Buttons (Back | Home | Volume | AI)
+    this.btnFooterBack = document.getElementById('btn-footer-back');
+    this.btnFooterHome = document.getElementById('btn-footer-home');
+    this.btnFooterVolume = document.getElementById('btn-footer-volume');
+    this.btnFooterAi = document.getElementById('btn-footer-ai');
 
     // Surfaces
     this.freepadSurface = document.getElementById('freepad-surface');
@@ -207,7 +208,7 @@ class HomeMoteController {
 
     this.link.setRoom(`homeos_${pin}`);
 
-    // Send immediately and retry briefly if room switch takes a moment
+    // Send immediately and retry briefly
     this.link.send(MESSAGE_TYPES.PAIR_REQUEST, { pin });
     setTimeout(() => {
       if (!this.isPaired) {
@@ -293,20 +294,20 @@ class HomeMoteController {
   // STEP 3: Power Controls (Center Standby <-> Top Right Active)
   // =========================================================================
   setupPowerControls() {
-    // 1. Center Big Power Button (Standby View) -> Turn TV ON
+    // 1. Center Big Power Button (Standby View) -> Turn TV ON -> Enter EntertainmentPad
     if (this.powerMainBtn) {
       this.powerMainBtn.addEventListener('click', () => {
         haptics.doublePulse();
-        console.log('[HomeMote] Powering ON HomeOS...');
+        console.log('[HomeMote] Powering ON HomeOS -> Flow to EntertainmentPad...');
         this.powerOn();
       });
     }
 
-    // 2. Compact Top Right Power Button (Active View) -> Turn TV OFF
+    // 2. Compact Top Right Power Button (Active View) -> Turn TV OFF -> Return to Standby
     if (this.powerActiveBtn) {
       this.powerActiveBtn.addEventListener('click', () => {
         haptics.doublePulse();
-        console.log('[HomeMote] Powering OFF HomeOS (Standby)...');
+        console.log('[HomeMote] Powering OFF HomeOS -> Return to Standby...');
         this.powerOff();
       });
     }
@@ -317,11 +318,11 @@ class HomeMoteController {
     this.link.send(MESSAGE_TYPES.POWER, { action: 'ON', user: this.username });
 
     // Transition from Standby to Active View:
-    // Center power button disappears; top bar + body modes appear!
+    // Center power button disappears; top bar + body modes + universal footer appear
     if (this.standbyView) this.standbyView.classList.add('hidden');
     if (this.activeView) this.activeView.classList.remove('hidden');
 
-    // Default to Entertainment mode immediately after power on
+    // "Flow: power button > clicked > entertainmentpad"
     this.switchMode('entertainment');
   }
 
@@ -348,10 +349,8 @@ class HomeMoteController {
 
   toggleCapsuleCode() {
     if (this.isShowingCapsulePin) {
-      // Revert immediately
       this.revertCapsuleToConnected();
     } else {
-      // Show code for 10s
       this.isShowingCapsulePin = true;
       const code = this.pairedPin || '103279';
       this.capsuleBtn.classList.add('showing-pin');
@@ -372,7 +371,7 @@ class HomeMoteController {
   }
 
   // =========================================================================
-  // MODE 1: Entertainment (2 OTTs in a row)
+  // PAD 1: EntertainmentPad (All OTTs with uploaded icons, 2 in a row)
   // =========================================================================
   setupEntertainmentGrid() {
     const ottCards = document.querySelectorAll('.ott-card');
@@ -382,33 +381,31 @@ class HomeMoteController {
         const title = card.getAttribute('data-title');
 
         haptics.select();
-        console.log(`[HomeMote] Launching OTT App on HomeOS: ${title} (${appId})`);
+        console.log(`[HomeMote] Flow: OTT App chosen (${title}) -> Opening on HomeOS -> Switching to Freepad...`);
 
-        // Send real signal to HomeOS to open OTT app
+        // Signal to HomeOS to open OTT app on TV
         this.link.send(MESSAGE_TYPES.OPEN_APP, {
           appId: appId,
           title: title,
           user: this.username
         });
 
-        // "once the OTT app is pressed the pad changes to freepad"
+        // "Flow: app chosen > freepad"
         this.switchMode('freepad');
       });
     });
   }
 
   // =========================================================================
-  // MODE 2: Freepad (Fullscreen Trackpad)
+  // PAD 2: Freepad (Fullscreen Trackpad)
   // =========================================================================
   setupFreepadSurface() {
     if (!this.freepadSurface) return;
 
     this.attachTrackpadListeners(this.freepadSurface, this.freepadRipple, (type, detail) => {
       if (type === 'move') {
-        // Real-time cursor move on HomeOS
         this.link.send(MESSAGE_TYPES.CURSOR_MOVE, { dx: detail.dx, dy: detail.dy });
       } else if (type === 'click') {
-        // Real tap to select on HomeOS
         haptics.click();
         this.link.send(MESSAGE_TYPES.CURSOR_CLICK, { action: 'press' });
         setTimeout(() => {
@@ -419,7 +416,7 @@ class HomeMoteController {
   }
 
   // =========================================================================
-  // MODE 3: Mediapad (Vertical Trackpad + Double-Tap Seek & Play/Pause)
+  // PAD 3: Mediapad (Vertical Trackpad + Double-Tap Seek & Play/Pause)
   // =========================================================================
   setupMediapadSurface() {
     if (!this.mediapadSurface) return;
@@ -431,8 +428,8 @@ class HomeMoteController {
       }
     });
 
-    // Add Double-Tap Gesture Detection:
-    // Left side: seek -10s | Center: pause/play | Right side: seek +10s
+    // Double-Tap Gestures:
+    // Left: Seek -10s | Center: Pause/Play | Right: Seek +10s
     this.mediapadSurface.addEventListener('pointerdown', (e) => {
       const now = Date.now();
       const rect = this.mediapadSurface.getBoundingClientRect();
@@ -444,19 +441,16 @@ class HomeMoteController {
       const dist = Math.hypot(clickX - this.lastTapX, clickY - this.lastTapY);
 
       if (timeDiff < 340 && dist < 35) {
-        // DOUBLE TAP DETECTED!
         clearTimeout(this.singleTapTimeout);
         this.handleMediapadDoubleTap(xRatio);
-        this.lastTapTime = 0; // reset
+        this.lastTapTime = 0;
       } else {
-        // Record first tap
         this.lastTapTime = now;
         this.lastTapX = clickX;
         this.lastTapY = clickY;
 
-        // Fallback for single tap selection after timeout
         this.singleTapTimeout = setTimeout(() => {
-          // Normal single tap
+          // Single tap fallback
         }, 350);
       }
     });
@@ -494,6 +488,75 @@ class HomeMoteController {
     this.hudTimeout = setTimeout(() => {
       if (this.mediapadHud) this.mediapadHud.classList.add('hidden');
     }, 1100);
+  }
+
+  // =========================================================================
+  // UNIVERSAL FOOTER: Back | Home | Volume | AI (Icons Only)
+  // =========================================================================
+  setupUniversalFooter() {
+    // 1. Back Button
+    if (this.btnFooterBack) {
+      this.btnFooterBack.addEventListener('click', () => {
+        haptics.click();
+        console.log('[HomeMote] Universal Footer: Back');
+        this.link.send(MESSAGE_TYPES.BACK, {});
+
+        // Dynamic navigation flow on Back:
+        if (this.currentMode === 'mediapad') {
+          this.switchMode('freepad');
+        } else if (this.currentMode === 'freepad') {
+          this.switchMode('entertainment');
+        }
+      });
+    }
+
+    // 2. Home Button -> Returns to EntertainmentPad & Homescreen
+    if (this.btnFooterHome) {
+      this.btnFooterHome.addEventListener('click', () => {
+        haptics.select();
+        console.log('[HomeMote] Universal Footer: Home');
+        this.link.send(MESSAGE_TYPES.HOME, {});
+        this.switchMode('entertainment');
+      });
+    }
+
+    // 3. Volume Button -> Toggles Volume HUD on TV
+    if (this.btnFooterVolume) {
+      this.btnFooterVolume.addEventListener('click', () => {
+        haptics.tick();
+        console.log('[HomeMote] Universal Footer: Volume');
+        this.link.send(MESSAGE_TYPES.VOLUME, { action: 'TOGGLE' });
+      });
+    }
+
+    // 4. AI Button -> Activates AI Assistant / Siri on TV
+    if (this.btnFooterAi) {
+      this.btnFooterAi.addEventListener('click', () => {
+        haptics.doublePulse();
+        console.log('[HomeMote] Universal Footer: AI Assistant');
+        this.link.send(MESSAGE_TYPES.VOICE_SEARCH, { query: 'AI_TRIGGER' });
+      });
+    }
+  }
+
+  // =========================================================================
+  // Mode Transition Engine (EntertainmentPad <-> Freepad <-> Mediapad)
+  // =========================================================================
+  switchMode(mode) {
+    if (!this.modePanels[mode]) return;
+    this.currentMode = mode;
+
+    Object.keys(this.modePanels).forEach(key => {
+      if (key === mode) {
+        this.modePanels[key].classList.remove('hidden');
+        this.modePanels[key].classList.add('active');
+      } else {
+        this.modePanels[key].classList.add('hidden');
+        this.modePanels[key].classList.remove('active');
+      }
+    });
+
+    console.log(`[HomeMote] Pad active: ${mode}`);
   }
 
   // =========================================================================
@@ -550,7 +613,6 @@ class HomeMoteController {
 
       if (rippleEl) rippleEl.classList.remove('active');
 
-      // Tap condition
       if (duration < 280 && totalMoved < 14) {
         callback('click', {});
       }
@@ -560,46 +622,6 @@ class HomeMoteController {
     surface.addEventListener('pointermove', onMove);
     surface.addEventListener('pointerup', onUp);
     surface.addEventListener('pointercancel', onUp);
-  }
-
-  // =========================================================================
-  // Bottom Segmented Mode Switcher
-  // =========================================================================
-  setupModeNavigation() {
-    this.modeTabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.getAttribute('data-target');
-        haptics.tick();
-        this.switchMode(target);
-      });
-    });
-  }
-
-  switchMode(mode) {
-    if (!this.modePanels[mode]) return;
-    this.currentMode = mode;
-
-    // Toggle panels
-    Object.keys(this.modePanels).forEach(key => {
-      if (key === mode) {
-        this.modePanels[key].classList.remove('hidden');
-        this.modePanels[key].classList.add('active');
-      } else {
-        this.modePanels[key].classList.add('hidden');
-        this.modePanels[key].classList.remove('active');
-      }
-    });
-
-    // Toggle nav buttons
-    this.modeTabBtns.forEach(btn => {
-      if (btn.getAttribute('data-target') === mode) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
-
-    console.log(`[HomeMote] Switched mode to: ${mode}`);
   }
 
   // =========================================================================
@@ -630,7 +652,6 @@ class HomeMoteController {
       this.standbyUserNameEl.textContent = username ? `${username}'s HomeMote` : 'HomeMote';
     }
 
-    // Default to Standby view (Single centered power button)
     if (!this.isPoweredOn) {
       if (this.standbyView) this.standbyView.classList.remove('hidden');
       if (this.activeView) this.activeView.classList.add('hidden');
@@ -683,7 +704,7 @@ class HomeMoteController {
       this.triggerPinError(payload?.error || 'Incorrect PIN code. Expected 103279.');
     });
 
-    // "when a media starts playing on the OS, the OS tells media is playing to the MOTE, and the MOTE switch to mediapad"
+    // "Flow: recieved input stating media is playing > mediapad"
     this.link.on(MESSAGE_TYPES.MEDIA_STATUS, (payload) => {
       console.log('[HomeMote] Received Media Status from HomeOS:', payload);
       if (payload?.isPlaying) {

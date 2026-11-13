@@ -5,7 +5,7 @@
  * 2. Top Right: User Greetings ("Good evening, Aaron")
  * 3. Bottom Center: Now Playing Bar (visible ONLY if media is playing)
  * Real handshake, live cursor & power toggle, dynamic storage
- * Responds to HomeMote: OPEN_APP, MEDIA_SEEK, PLAY_PAUSE, CURSOR_MOVE, CURSOR_CLICK
+ * Responds to HomeMote: OPEN_APP (10 OTT apps), MEDIA_SEEK, PLAY_PAUSE, CURSOR_MOVE, CURSOR_CLICK, BACK, HOME, VOLUME, VOICE_SEARCH
  */
 
 import { HomeLink } from '../../shared/homelink.js';
@@ -18,58 +18,96 @@ const APP_CATALOG = {
     title: 'Apple TV+',
     media: 'Severance',
     desc: 'Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives.',
-    service: 'tv'
+    service: 'tv',
+    icon: 'icons/apple-512.png'
   },
   netflix: {
     badge: 'NETFLIX',
     title: 'Netflix',
     media: 'Stranger Things',
-    desc: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
-    service: 'Netflix'
+    desc: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.',
+    service: 'Netflix',
+    icon: 'icons/netflix-512.png'
   },
   prime: {
     badge: 'PRIME',
     title: 'Prime Video',
     media: 'The Boys',
     desc: 'A fun and irreverent take on what happens when superheroes abuse their superpowers rather than use them for good.',
-    service: 'Prime Video'
+    service: 'Prime Video',
+    icon: 'icons/prime-512.png'
   },
-  disney: {
-    badge: 'DISNEY+',
-    title: 'Disney+',
-    media: 'The Mandalorian',
-    desc: 'The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.',
-    service: 'Disney+'
+  jiohotstar: {
+    badge: 'HOTSTAR',
+    title: 'JioHotstar',
+    media: 'House of the Dragon',
+    desc: 'The story of House Targaryen set 200 years before the events of Game of Thrones in Westeros.',
+    service: 'JioHotstar',
+    icon: 'icons/jiohotstar-512.png'
   },
   youtube: {
     badge: 'YOUTUBE',
     title: 'YouTube',
     media: 'Apple Park Keynote',
     desc: 'Special Apple Event broadcast from Cupertino, California streaming in 4K HDR.',
-    service: 'YouTube'
+    service: 'YouTube',
+    icon: 'icons/youtube-512.png'
   },
-  spotify: {
-    badge: 'SPOTIFY',
-    title: 'Spotify',
-    media: 'Top Hits 2026',
-    desc: 'The hottest tracks right now across pop, electronic, and hip-hop.',
-    service: 'Spotify'
+  ytmusic: {
+    badge: 'YT MUSIC',
+    title: 'YouTube Music',
+    media: 'Synthwave & Electronic Sessions',
+    desc: 'Continuous non-stop curated electronic music playlists and live festival streams.',
+    service: 'YouTube Music',
+    icon: 'icons/ytmusic-512.png'
+  },
+  sony: {
+    badge: 'SONY LIV',
+    title: 'Sony LIV',
+    media: 'Scam 1992',
+    desc: 'The meteoric rise and catastrophic fall of stockbroker Harshad Mehta in 1990s Mumbai.',
+    service: 'Sony LIV',
+    icon: 'icons/sony-512.png'
+  },
+  zee5: {
+    badge: 'ZEE5',
+    title: 'ZEE5',
+    media: 'Taj: Divided by Blood',
+    desc: 'A gripping historical saga capturing the succession war for the Mughal throne.',
+    service: 'ZEE5',
+    icon: 'icons/zee5-512.png'
+  },
+  fancode: {
+    badge: 'FANCODE',
+    title: 'FanCode',
+    media: 'Live Match Broadcast',
+    desc: 'Premier live sports streams, exclusive commentary, highlights and real-time scorecards.',
+    service: 'FanCode',
+    icon: 'icons/fancode-512.png'
+  },
+  brave: {
+    badge: 'BRAVE',
+    title: 'Brave Browser',
+    media: 'Private Web Experience',
+    desc: 'Fast, secure, ad-free web browsing on tvOS with integrated Shields protection.',
+    service: 'Brave',
+    icon: 'icons/brave-512.png'
   }
 };
 
 class HomeOSLauncher {
   constructor() {
-    // Fixed embedded PIN code
     this.pinCode = '103279';
     localStorage.setItem('homeos_pairing_pin', this.pinCode);
 
     this.pairedRemotes = new Set();
     this.isSleeping = false;
     this.currentApp = null;
+    this.isMuted = false;
 
-    // Media State ("Now Playing Bar, visible only if media is playing")
+    // Media State
     this.mediaState = {
-      isPlaying: true, // Default to true as shown in user's mockup
+      isPlaying: true,
       title: 'Severance',
       service: 'tv'
     };
@@ -80,7 +118,7 @@ class HomeOSLauncher {
       roomId: `homeos_${this.pinCode}`
     });
 
-    // Cursor position (default center of screen)
+    // Cursor position
     this.cursorX = window.innerWidth / 2;
     this.cursorY = window.innerHeight / 2;
     this.cursorVisible = false;
@@ -119,6 +157,7 @@ class HomeOSLauncher {
 
     // App Overlay Elements
     this.appOverlay = document.getElementById('tv-app-overlay');
+    this.appWindowIcon = document.getElementById('app-window-icon');
     this.appBadge = document.getElementById('app-window-badge');
     this.appTitle = document.getElementById('app-window-title');
     this.appMediaName = document.getElementById('app-media-name');
@@ -245,7 +284,6 @@ class HomeOSLauncher {
   }
 
   broadcastMediaStatus() {
-    // Notify HomeMote so it automatically switches to Mediapad!
     this.link.send(MESSAGE_TYPES.MEDIA_STATUS, {
       isPlaying: this.mediaState.isPlaying,
       title: this.mediaState.title,
@@ -254,7 +292,7 @@ class HomeOSLauncher {
   }
 
   // =========================================================================
-  // On-Screen HUD Pill Notification (Seek, Play/Pause)
+  // On-Screen HUD Pill Notification (Seek, Play/Pause, Volume, Home, AI)
   // =========================================================================
   showOnScreenHud(icon, text) {
     if (!this.hudPill) return;
@@ -304,9 +342,11 @@ class HomeOSLauncher {
       title: title || 'Streaming App',
       media: 'Now Showing',
       desc: 'Enjoy top streaming originals and movies on HomeOS.',
-      service: title || 'OTT'
+      service: title || 'OTT',
+      icon: 'icons/apple-512.png'
     };
 
+    if (this.appWindowIcon && info.icon) this.appWindowIcon.src = info.icon;
     if (this.appBadge) this.appBadge.textContent = info.badge;
     if (this.appTitle) this.appTitle.textContent = info.title;
     if (this.appMediaName) this.appMediaName.textContent = info.media;
@@ -352,7 +392,6 @@ class HomeOSLauncher {
         }
 
         this.showCursor();
-        // Sync initial media state to remote
         this.broadcastMediaStatus();
       } else {
         this.link.send(MESSAGE_TYPES.PAIR_REJECTED, {
@@ -361,7 +400,7 @@ class HomeOSLauncher {
       }
     });
 
-    // Real-time Cursor Movement from Freepad / Mediapad
+    // Cursor Movement
     this.link.on(MESSAGE_TYPES.CURSOR_MOVE, (payload) => {
       if (this.isSleeping) return;
       this.showCursor();
@@ -376,7 +415,7 @@ class HomeOSLauncher {
       this.updateCursorPosition();
     });
 
-    // Cursor Click / Tap on Remote Surface
+    // Cursor Click / Tap
     this.link.on(MESSAGE_TYPES.CURSOR_CLICK, (payload) => {
       if (this.isSleeping) return;
       this.showCursor();
@@ -386,7 +425,6 @@ class HomeOSLauncher {
         this.cursorEl.classList.add('clicked');
         sounds.playSelect();
 
-        // Native click dispatch to element beneath cursor!
         this.cursorEl.style.pointerEvents = 'none';
         const target = document.elementFromPoint(this.cursorX, this.cursorY);
         this.cursorEl.style.pointerEvents = '';
@@ -402,7 +440,7 @@ class HomeOSLauncher {
       }
     });
 
-    // Remote User Profile (e.g. "Aaron Antony")
+    // User Profile Sync
     this.link.on(MESSAGE_TYPES.USER_PROFILE, (payload) => {
       const username = payload?.username;
       if (username) {
@@ -412,7 +450,7 @@ class HomeOSLauncher {
       }
     });
 
-    // Launch OTT App from Entertainment Screen
+    // Launch OTT App
     this.link.on(MESSAGE_TYPES.OPEN_APP, (payload) => {
       console.log('[HomeOS] Opening OTT App:', payload);
       this.openApp(payload?.appId, payload?.title);
@@ -424,12 +462,44 @@ class HomeOSLauncher {
       this.handleSeek(payload?.direction, payload?.seconds || 10);
     });
 
-    // Play / Pause Toggle from Remote
+    // Play / Pause Toggle
     this.link.on(MESSAGE_TYPES.PLAY_PAUSE, () => {
       this.toggleMediaPlayState();
     });
 
-    // Power Toggle from Remote
+    // Universal Footer Action: Back
+    this.link.on(MESSAGE_TYPES.BACK, () => {
+      sounds.playBack();
+      if (this.appOverlay && !this.appOverlay.classList.contains('hidden')) {
+        this.closeApp();
+      } else if (this.mediaState.isPlaying) {
+        this.toggleMediaPlayState();
+      }
+    });
+
+    // Universal Footer Action: Home
+    this.link.on(MESSAGE_TYPES.HOME, () => {
+      sounds.playSelect();
+      if (this.appOverlay) this.closeApp();
+      this.showOnScreenHud('⌂', 'Home');
+    });
+
+    // Universal Footer Action: Volume
+    this.link.on(MESSAGE_TYPES.VOLUME, () => {
+      sounds.playSelect();
+      this.isMuted = !this.isMuted;
+      const volIcon = this.isMuted ? '🔇' : '🔊';
+      const volText = this.isMuted ? 'Muted' : 'Volume 50%';
+      this.showOnScreenHud(volIcon, volText);
+    });
+
+    // Universal Footer Action: AI
+    this.link.on(MESSAGE_TYPES.VOICE_SEARCH, () => {
+      sounds.playConnectChime();
+      this.showOnScreenHud('✨', 'How can I help you?');
+    });
+
+    // Power Toggle
     this.link.on(MESSAGE_TYPES.POWER, (payload) => {
       const action = payload?.action;
       if (action === 'ON') {
