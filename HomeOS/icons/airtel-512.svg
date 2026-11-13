@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="airtelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E40000"/>
+      <stop offset="100%" stop-color="#990000"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#airtelGrad)"/>
+  <path d="M256 120 C180 120 120 180 120 256 C120 332 180 392 256 392 C310 392 356 360 376 316 C346 336 306 348 266 348 C186 348 164 286 164 246 C164 186 216 156 266 156 C306 156 342 174 366 200 C346 150 306 120 256 120 Z" fill="#FFFFFF"/>
+  <text x="256" y="440" font-family="-apple-system, sans-serif" font-weight="800" font-size="44" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">XSTREAM</text>
+</svg>

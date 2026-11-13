@@ -13,21 +13,23 @@ import { MESSAGE_TYPES } from '../../shared/protocol.js';
 import { sounds } from './sound.js';
 
 const APP_CATALOG = {
-  appletv: {
-    badge: 'tv+',
-    title: 'Apple TV+',
-    media: 'Severance',
-    desc: 'Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives.',
-    service: 'tv',
-    icon: 'icons/apple-512.png'
-  },
   netflix: {
     badge: 'NETFLIX',
     title: 'Netflix',
     media: 'Stranger Things',
     desc: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.',
     service: 'Netflix',
-    icon: 'icons/netflix-512.png'
+    icon: 'icons/netflix-512.png',
+    url: 'https://www.netflix.com/browse'
+  },
+  jiohotstar: {
+    badge: 'HOTSTAR',
+    title: 'Hotstar',
+    media: 'House of the Dragon',
+    desc: 'The story of House Targaryen set 200 years before the events of Game of Thrones in Westeros.',
+    service: 'Hotstar',
+    icon: 'icons/jiohotstar-512.png',
+    url: 'https://www.hotstar.com/in/home'
   },
   prime: {
     badge: 'PRIME',
@@ -35,15 +37,8 @@ const APP_CATALOG = {
     media: 'The Boys',
     desc: 'A fun and irreverent take on what happens when superheroes abuse their superpowers rather than use them for good.',
     service: 'Prime Video',
-    icon: 'icons/prime-512.png'
-  },
-  jiohotstar: {
-    badge: 'HOTSTAR',
-    title: 'JioHotstar',
-    media: 'House of the Dragon',
-    desc: 'The story of House Targaryen set 200 years before the events of Game of Thrones in Westeros.',
-    service: 'JioHotstar',
-    icon: 'icons/jiohotstar-512.png'
+    icon: 'icons/prime-512.png',
+    url: 'https://www.primevideo.com/region/eu/storefront'
   },
   youtube: {
     badge: 'YOUTUBE',
@@ -51,23 +46,8 @@ const APP_CATALOG = {
     media: 'Apple Park Keynote',
     desc: 'Special Apple Event broadcast from Cupertino, California streaming in 4K HDR.',
     service: 'YouTube',
-    icon: 'icons/youtube-512.png'
-  },
-  ytmusic: {
-    badge: 'YT MUSIC',
-    title: 'YouTube Music',
-    media: 'Synthwave & Electronic Sessions',
-    desc: 'Continuous non-stop curated electronic music playlists and live festival streams.',
-    service: 'YouTube Music',
-    icon: 'icons/ytmusic-512.png'
-  },
-  sony: {
-    badge: 'SONY LIV',
-    title: 'Sony LIV',
-    media: 'Scam 1992',
-    desc: 'The meteoric rise and catastrophic fall of stockbroker Harshad Mehta in 1990s Mumbai.',
-    service: 'Sony LIV',
-    icon: 'icons/sony-512.png'
+    icon: 'icons/youtube-512.png',
+    url: 'https://www.youtube.com/'
   },
   zee5: {
     badge: 'ZEE5',
@@ -75,23 +55,62 @@ const APP_CATALOG = {
     media: 'Taj: Divided by Blood',
     desc: 'A gripping historical saga capturing the succession war for the Mughal throne.',
     service: 'ZEE5',
-    icon: 'icons/zee5-512.png'
+    icon: 'icons/zee5-512.png',
+    url: 'https://www.zee5.com/?tracking_id=1a96c031-c133-4d3d-8660-340c219a3cc4&gclsrc=aw.ds&gad_source=1&gad_campaignid=22405199967&gbraid=0AAAAADEa-ArTXasfte_0c-1sbB5bCVNZH'
+  },
+  airtel: {
+    badge: 'AIRTEL',
+    title: 'Airtel Xstream',
+    media: 'Live TV & Entertainment',
+    desc: 'Stream live channels, blockbuster movies, and top regional series with Airtel Xstream.',
+    service: 'Airtel Xstream',
+    icon: 'icons/airtel-512.svg',
+    url: 'https://www.airtelxstream.in/'
+  },
+  appletv: {
+    badge: 'tv+',
+    title: 'Apple TV+',
+    media: 'Severance',
+    desc: 'Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives.',
+    service: 'tv',
+    icon: 'icons/apple-512.png',
+    url: 'https://tv.apple.com/in'
   },
   fancode: {
     badge: 'FANCODE',
     title: 'FanCode',
-    media: 'Live Match Broadcast',
-    desc: 'Premier live sports streams, exclusive commentary, highlights and real-time scorecards.',
+    media: 'Formula 1 & Live Sports',
+    desc: 'Live Formula 1 Grand Prix races, football, cricket and premium sports streaming.',
     service: 'FanCode',
-    icon: 'icons/fancode-512.png'
+    icon: 'icons/fancode-512.png',
+    url: 'https://www.fancode.com/formula1/tour/f1-msc-cruises-grande-premio-de-sao-paulo-2026-19295054/schedule'
+  },
+  sony: {
+    badge: 'SONY LIV',
+    title: 'Sony LIV',
+    media: 'Scam 1992',
+    desc: 'The meteoric rise and catastrophic fall of stockbroker Harshad Mehta in 1990s Mumbai.',
+    service: 'Sony LIV',
+    icon: 'icons/sony-512.png',
+    url: 'https://www.sonyliv.com/'
+  },
+  ytmusic: {
+    badge: 'YT MUSIC',
+    title: 'YouTube Music',
+    media: 'Synthwave & Electronic Sessions',
+    desc: 'Continuous non-stop curated electronic music playlists and live festival streams.',
+    service: 'YouTube Music',
+    icon: 'icons/ytmusic-512.png',
+    url: 'https://music.youtube.com/'
   },
   brave: {
     badge: 'BRAVE',
     title: 'Brave Browser',
-    media: 'Private Web Experience',
+    media: 'Private Web Search',
     desc: 'Fast, secure, ad-free web browsing on tvOS with integrated Shields protection.',
     service: 'Brave',
-    icon: 'icons/brave-512.png'
+    icon: 'icons/brave-512.png',
+    url: 'https://search.brave.com/'
   }
 };
 
@@ -164,6 +183,9 @@ class HomeOSLauncher {
     this.appMediaDesc = document.getElementById('app-media-desc');
     this.btnCloseApp = document.getElementById('btn-close-app');
     this.btnAppPlay = document.getElementById('btn-app-play');
+    this.appWindowUrl = document.getElementById('app-window-url');
+    this.appUrlText = document.getElementById('app-url-text');
+    this.btnAppPlayText = document.getElementById('btn-app-play-text');
 
     this.updateCursorPosition();
   }
@@ -335,27 +357,43 @@ class HomeOSLauncher {
     }
   }
 
-  openApp(appId, title) {
-    this.currentApp = appId || 'appletv';
+  openApp(appId, title, url) {
+    this.currentApp = appId || 'netflix';
     const info = APP_CATALOG[this.currentApp] || {
       badge: title || 'APP',
       title: title || 'Streaming App',
       media: 'Now Showing',
       desc: 'Enjoy top streaming originals and movies on HomeOS.',
       service: title || 'OTT',
-      icon: 'icons/apple-512.png'
+      icon: 'icons/netflix-512.png',
+      url: url || 'https://www.netflix.com/browse'
     };
+
+    const targetUrl = url || info.url || 'https://www.netflix.com/browse';
 
     if (this.appWindowIcon && info.icon) this.appWindowIcon.src = info.icon;
     if (this.appBadge) this.appBadge.textContent = info.badge;
     if (this.appTitle) this.appTitle.textContent = info.title;
     if (this.appMediaName) this.appMediaName.textContent = info.media;
     if (this.appMediaDesc) this.appMediaDesc.textContent = info.desc;
+    if (this.appWindowUrl) this.appWindowUrl.href = targetUrl;
+    if (this.appUrlText) this.appUrlText.textContent = targetUrl;
+    if (this.btnAppPlay) this.btnAppPlay.href = targetUrl;
 
     if (this.appOverlay) {
       this.appOverlay.classList.remove('hidden');
       sounds.playSelect();
     }
+
+    // Auto open destination link in a new tab if allowed
+    try {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      console.warn('[HomeOS] Auto-open window popup blocked:', e);
+    }
+
+    // Broadcast media status so Now Playing bar displays & HomeMote switches to Mediapad
+    this.setMediaPlaying(true, info.media, info.service);
   }
 
   closeApp() {
@@ -453,7 +491,7 @@ class HomeOSLauncher {
     // Launch OTT App
     this.link.on(MESSAGE_TYPES.OPEN_APP, (payload) => {
       console.log('[HomeOS] Opening OTT App:', payload);
-      this.openApp(payload?.appId, payload?.title);
+      this.openApp(payload?.appId, payload?.title, payload?.url);
     });
 
     // Seek Gestures from Mediapad

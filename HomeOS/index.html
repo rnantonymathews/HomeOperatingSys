@@ -48,7 +48,7 @@
       </div>
     </header>
 
-    <!-- Center On-Screen HUD Notification (Seek +10s, -10s, Play/Pause) -->
+    <!-- Center On-Screen HUD Notification (Seek +10s, -10s, Play/Pause, Volume, AI) -->
     <div id="tv-hud-notification" class="tv-hud-pill hidden">
       <span id="hud-pill-icon" class="hud-pill-icon">⏯</span>
       <span id="hud-pill-text" class="hud-pill-text">Play / Pause</span>
@@ -63,21 +63,29 @@
             <span id="app-window-badge" class="app-window-badge">tv+</span>
             <span id="app-window-title" class="app-window-title">Apple TV+</span>
           </div>
-          <button id="btn-close-app" class="btn-app-close tv-focusable" title="Close App">✕</button>
+          <div class="app-header-actions">
+            <a id="app-window-url" class="app-url-pill tv-focusable" target="_blank" href="#" title="Open streaming link">
+              <span id="app-url-text">https://netflix.com/browse</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+              </svg>
+            </a>
+            <button id="btn-close-app" class="btn-app-close tv-focusable" title="Close App">✕</button>
+          </div>
         </header>
 
         <div class="app-window-body">
           <div class="featured-media-card">
-            <div class="media-badge">FEATURED</div>
+            <div class="media-badge">DESTINATION STREAM</div>
             <h2 id="app-media-name" class="media-title">Severance</h2>
             <p id="app-media-desc" class="media-description">Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives.</p>
             <div class="media-actions">
-              <button id="btn-app-play" class="btn-media-play tv-focusable">
+              <a id="btn-app-play" class="btn-media-play tv-focusable" target="_blank" href="#">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
-                <span>Watch Episode 1</span>
-              </button>
+                <span id="btn-app-play-text">Open Streaming Link</span>
+              </a>
             </div>
           </div>
         </div>

@@ -379,18 +379,20 @@ class HomeMoteController {
       card.addEventListener('click', () => {
         const appId = card.getAttribute('data-app-id');
         const title = card.getAttribute('data-title');
+        const url = card.getAttribute('data-url') || '';
 
         haptics.select();
-        console.log(`[HomeMote] Flow: OTT App chosen (${title}) -> Opening on HomeOS -> Switching to Freepad...`);
+        console.log(`[HomeMote] Flow: Opening ${title} -> URL: ${url} -> Switching to Freepad...`);
 
-        // Signal to HomeOS to open OTT app on TV
+        // Signal to HomeOS to open OTT app on TV with direct URL
         this.link.send(MESSAGE_TYPES.OPEN_APP, {
           appId: appId,
           title: title,
+          url: url,
           user: this.username
         });
 
-        // "Flow: app chosen > freepad"
+        // "the remote will then change to freepad."
         this.switchMode('freepad');
       });
     });

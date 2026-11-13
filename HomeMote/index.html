@@ -124,7 +124,7 @@
         <!-- Dynamic Body Area: EntertainmentPad -> Freepad -> Mediapad -->
         <main class="active-body">
 
-          <!-- 1. EntertainmentPad (Shows all OTTs with uploaded icons, 2 in a row) -->
+          <!-- 1. EntertainmentPad (Shows all OTTs with uploaded icons & exact links, 2 in a row) -->
           <section id="mode-entertainment" class="body-mode-panel active">
             <div class="panel-header">
               <h2 class="panel-title">Entertainment</h2>
@@ -132,80 +132,88 @@
             </div>
 
             <div class="ott-grid">
-              <!-- Apple TV+ -->
-              <button class="ott-card" data-app-id="appletv" data-title="Apple TV+">
-                <div class="ott-icon-wrap">
-                  <img src="icons/apps/apple-512.png" alt="Apple TV+" class="ott-card-img" />
-                </div>
-                <span class="ott-card-title">Apple TV+</span>
-              </button>
-
               <!-- Netflix -->
-              <button class="ott-card" data-app-id="netflix" data-title="Netflix">
+              <button class="ott-card" data-app-id="netflix" data-title="Netflix" data-url="https://www.netflix.com/browse">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/netflix-512.png" alt="Netflix" class="ott-card-img" />
                 </div>
                 <span class="ott-card-title">Netflix</span>
               </button>
 
+              <!-- JioHotstar -->
+              <button class="ott-card" data-app-id="jiohotstar" data-title="Hotstar" data-url="https://www.hotstar.com/in/home">
+                <div class="ott-icon-wrap">
+                  <img src="icons/apps/jiohotstar-512.png" alt="Hotstar" class="ott-card-img" />
+                </div>
+                <span class="ott-card-title">Hotstar</span>
+              </button>
+
               <!-- Prime Video -->
-              <button class="ott-card" data-app-id="prime" data-title="Prime Video">
+              <button class="ott-card" data-app-id="prime" data-title="Prime Video" data-url="https://www.primevideo.com/region/eu/storefront">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/prime-512.png" alt="Prime Video" class="ott-card-img" />
                 </div>
                 <span class="ott-card-title">Prime Video</span>
               </button>
 
-              <!-- JioHotstar -->
-              <button class="ott-card" data-app-id="jiohotstar" data-title="JioHotstar">
-                <div class="ott-icon-wrap">
-                  <img src="icons/apps/jiohotstar-512.png" alt="JioHotstar" class="ott-card-img" />
-                </div>
-                <span class="ott-card-title">JioHotstar</span>
-              </button>
-
               <!-- YouTube -->
-              <button class="ott-card" data-app-id="youtube" data-title="YouTube">
+              <button class="ott-card" data-app-id="youtube" data-title="YouTube" data-url="https://www.youtube.com/">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/youtube-512.png" alt="YouTube" class="ott-card-img" />
                 </div>
                 <span class="ott-card-title">YouTube</span>
               </button>
 
-              <!-- YouTube Music -->
-              <button class="ott-card" data-app-id="ytmusic" data-title="YouTube Music">
-                <div class="ott-icon-wrap">
-                  <img src="icons/apps/ytmusic-512.png" alt="YouTube Music" class="ott-card-img" />
-                </div>
-                <span class="ott-card-title">YT Music</span>
-              </button>
-
-              <!-- Sony LIV -->
-              <button class="ott-card" data-app-id="sony" data-title="Sony LIV">
-                <div class="ott-icon-wrap">
-                  <img src="icons/apps/sony-512.png" alt="Sony LIV" class="ott-card-img" />
-                </div>
-                <span class="ott-card-title">Sony LIV</span>
-              </button>
-
               <!-- ZEE5 -->
-              <button class="ott-card" data-app-id="zee5" data-title="ZEE5">
+              <button class="ott-card" data-app-id="zee5" data-title="ZEE5" data-url="https://www.zee5.com/?tracking_id=1a96c031-c133-4d3d-8660-340c219a3cc4&gclsrc=aw.ds&gad_source=1&gad_campaignid=22405199967&gbraid=0AAAAADEa-ArTXasfte_0c-1sbB5bCVNZH">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/zee5-512.png" alt="ZEE5" class="ott-card-img" />
                 </div>
                 <span class="ott-card-title">ZEE5</span>
               </button>
 
+              <!-- Airtel Xstream -->
+              <button class="ott-card" data-app-id="airtel" data-title="Airtel Xstream" data-url="https://www.airtelxstream.in/">
+                <div class="ott-icon-wrap">
+                  <img src="icons/apps/airtel-512.svg" alt="Airtel Xstream" class="ott-card-img" />
+                </div>
+                <span class="ott-card-title">Xstream</span>
+              </button>
+
+              <!-- Apple TV+ -->
+              <button class="ott-card" data-app-id="appletv" data-title="Apple TV+" data-url="https://tv.apple.com/in">
+                <div class="ott-icon-wrap">
+                  <img src="icons/apps/apple-512.png" alt="Apple TV+" class="ott-card-img" />
+                </div>
+                <span class="ott-card-title">Apple TV+</span>
+              </button>
+
               <!-- FanCode -->
-              <button class="ott-card" data-app-id="fancode" data-title="FanCode">
+              <button class="ott-card" data-app-id="fancode" data-title="FanCode" data-url="https://www.fancode.com/formula1/tour/f1-msc-cruises-grande-premio-de-sao-paulo-2026-19295054/schedule">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/fancode-512.png" alt="FanCode" class="ott-card-img" />
                 </div>
                 <span class="ott-card-title">FanCode</span>
               </button>
 
+              <!-- Sony LIV -->
+              <button class="ott-card" data-app-id="sony" data-title="Sony LIV" data-url="https://www.sonyliv.com/">
+                <div class="ott-icon-wrap">
+                  <img src="icons/apps/sony-512.png" alt="Sony LIV" class="ott-card-img" />
+                </div>
+                <span class="ott-card-title">Sony LIV</span>
+              </button>
+
+              <!-- YouTube Music -->
+              <button class="ott-card" data-app-id="ytmusic" data-title="YouTube Music" data-url="https://music.youtube.com/">
+                <div class="ott-icon-wrap">
+                  <img src="icons/apps/ytmusic-512.png" alt="YouTube Music" class="ott-card-img" />
+                </div>
+                <span class="ott-card-title">YT Music</span>
+              </button>
+
               <!-- Brave Browser -->
-              <button class="ott-card" data-app-id="brave" data-title="Brave">
+              <button class="ott-card" data-app-id="brave" data-title="Brave" data-url="https://search.brave.com/">
                 <div class="ott-icon-wrap">
                   <img src="icons/apps/brave-512.png" alt="Brave Browser" class="ott-card-img" />
                 </div>
